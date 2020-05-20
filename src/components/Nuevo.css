@@ -13,10 +13,17 @@
 }
 
 .columnanuevo {
-  background-color: rgb(156, 37, 7);
+  /*background-color: rgb(156, 37, 7);*/
   width: auto;
   padding: 10px;
   font-size: 30;
+}
+
+.botones {
+  width: 100%;
+  background-color: #004b87;
+  height: 60px;
+  margin-bottom: 30px;
 }
 
 input[type="number"] {

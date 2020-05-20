@@ -1,7 +1,9 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Icon, Table, Button } from "react-materialize";
 import "./Inicio.css";
+import "./Nuevo.jsx";
 
 export default class Inicio extends Component {
   constructor(props) {
@@ -12,11 +14,13 @@ export default class Inicio extends Component {
       estado: "",
       impacto: "",
       busqueda: "",
+      redireccion: false,
+      mostrarTodo: false,
     };
   }
 
   cargar = () => {
-    fetch("http://localhost/OTRI/getProyecto.php")
+    fetch("https://combita.company/otri/php/getProyecto.php")
       .then((res) => res.json())
       .then((data) => this.setState({ proyectos: data, proyectosCopia: data }))
       .catch((err) => console.log(err));
@@ -37,95 +41,113 @@ export default class Inicio extends Component {
   };
 
   buscarTexto = () => {
-    this.setState({
-      proyectos: this.state.proyectosCopia,
-    });
+    if (this.state.busqueda.length >= 4) {
+      this.setState({
+        proyectos: this.state.proyectosCopia,
+      });
 
-    let arr = [];
+      let arr = [];
 
-    for (let i = 0; i < this.state.proyectosCopia.length; i++) {
-      if (
-        this.state.proyectosCopia[i].tip_pro !== null &&
-        this.state.proyectosCopia[i].tip_pro.search(this.state.busqueda) !== -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
+      for (let i = 0; i < this.state.proyectosCopia.length; i++) {
+        if (
+          this.state.proyectosCopia[i].tip_pro !== null &&
+          this.state.proyectosCopia[i].tip_pro
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].con_pro !== null &&
+          this.state.proyectosCopia[i].con_pro
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].fac_pro
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].tit_pro
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].cod_pro !== null &&
+          this.state.proyectosCopia[i].cod_pro === this.state.busqueda
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].inv_pro !== null &&
+          this.state.proyectosCopia[i].inv_pro
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].co_inv_pro !== null &&
+          this.state.proyectosCopia[i].co_inv_pro
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].inv_lid_pro !== null &&
+          this.state.proyectosCopia[i].inv_lid_pro
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].ent_eje_pro !== null &&
+          this.state.proyectosCopia[i].ent_eje_pro
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].gru_pro !== null &&
+          this.state.proyectosCopia[i].gru_pro
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
+        if (
+          this.state.proyectosCopia[i].otr_ent_par !== null &&
+          this.state.proyectosCopia[i].otr_ent_par
+            .toLocaleUpperCase()
+            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
+        ) {
+          arr.push(this.state.proyectosCopia[i]);
+          continue;
+        }
       }
-      if (
-        this.state.proyectosCopia[i].con_pro !== null &&
-        this.state.proyectosCopia[i].con_pro.search(this.state.busqueda) !== -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
-      if (
-        this.state.proyectosCopia[i].fac_pro.search(this.state.busqueda) !== -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
-      if (
-        this.state.proyectosCopia[i].tit_pro.search(this.state.busqueda) !== -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
-      if (
-        this.state.proyectosCopia[i].cod_pro !== null &&
-        this.state.proyectosCopia[i].cod_pro === this.state.busqueda
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
-      if (
-        this.state.proyectosCopia[i].inv_pro !== null &&
-        this.state.proyectosCopia[i].inv_pro.search(this.state.busqueda) !== -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
-      if (
-        this.state.proyectosCopia[i].co_inv_pro !== null &&
-        this.state.proyectosCopia[i].co_inv_pro.search(this.state.busqueda) !==
-          -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
-      if (
-        this.state.proyectosCopia[i].inv_lid_pro !== null &&
-        this.state.proyectosCopia[i].inv_lid_pro.search(this.state.busqueda) !==
-          -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
-      if (
-        this.state.proyectosCopia[i].ent_eje_pro !== null &&
-        this.state.proyectosCopia[i].ent_eje_pro.search(this.state.busqueda) !==
-          -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
-      if (
-        this.state.proyectosCopia[i].gru_pro !== null &&
-        this.state.proyectosCopia[i].gru_pro.search(this.state.busqueda) !== -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
-      if (
-        this.state.proyectosCopia[i].otr_ent_par !== null &&
-        this.state.proyectosCopia[i].otr_ent_par.search(this.state.busqueda) !==
-          -1
-      ) {
-        arr.push(this.state.proyectosCopia[i]);
-        continue;
-      }
+
+      this.setState({ proyectos: arr });
     }
-
-    this.setState({ proyectos: arr });
   };
 
   buscar = () => {
@@ -160,7 +182,13 @@ export default class Inicio extends Component {
     this.setState({ proyectos: busqueda });
   };
 
+  registro = () => this.setState({ redireccion: true });
+
+  mostrarTodo = () => this.setState({ mostrarTodo: true });
+
   render() {
+    if (this.state.mostrarTodo) return <Redirect to="/mostrar" />;
+    if (this.state.redireccion) return <Redirect to="/nuevo" />;
     if (localStorage.getItem("admin") !== "")
       return (
         <div
@@ -253,6 +281,7 @@ export default class Inicio extends Component {
                   marginTop: 12,
                   marginLeft: 15,
                 }}
+                onClick={this.registro}
               >
                 Agregar Nuevo
                 <Icon left>add_circle</Icon>
@@ -295,7 +324,7 @@ export default class Inicio extends Component {
                 </a>
               </div>
             </div>
-            <div className="tabla_1">
+            <div className="tabla_1 scrollito">
               <Table id="customers">
                 <thead>
                   <tr>
@@ -327,6 +356,13 @@ export default class Inicio extends Component {
                           >
                             <Icon>edit</Icon>
                           </Button>
+                          <Button
+                            small
+                            waves="light"
+                            className="yellow darken -3"
+                          >
+                            <Icon>remove_red_eye</Icon>
+                          </Button>
                         </td>
                       </tr>
                     );
@@ -344,6 +380,17 @@ export default class Inicio extends Component {
                 <a href="#">3</a>
                 <a href="#">4</a>
                 <a href="#">&raquo;</a>
+              </div>
+              <div>
+                <Button
+                  small
+                  waves="light"
+                  className="yellow darken -3"
+                  style={{ float: "right" }}
+                  onClick={this.mostrarTodo}
+                >
+                  <Icon>remove_red_eye</Icon>
+                </Button>
               </div>
               <div className="texto_navbar">
                 Resultado: {this.state.proyectos.length}

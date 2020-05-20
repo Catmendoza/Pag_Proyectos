@@ -27,7 +27,7 @@ export default class Login extends Component {
 
   login = () => {
     fetch(
-      `http://localhost/OTRI/login.php?usuario=${this.state.usuario}&contrasena=${this.state.contra}`
+      `https://combita.company/otri/php/login.php?usuario=${this.state.usuario}&contrasena=${this.state.contra}`
     )
       .then((res) => res.json())
       .then((data) => {

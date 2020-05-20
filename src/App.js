@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Login from "./components/Login";
 import Inicio from "./components/Inicio";
 import Nuevo from "./components/Nuevo";
+import Mostrar from "./components/Mostrar";
 import {
   BrowserRouter as Router,
   Switch,
@@ -26,15 +27,9 @@ export default class App extends Component {
   };
 
   render() {
+    document.body.style = "background: #a0dded";
     return (
-      <div
-        className="blue lighten-4"
-        style={{
-          width: "100%",
-          height: "100%",
-          backgroundColor: "#1b7fcf",
-        }}
-      >
+      <div>
         <div style={{ paddingTop: 10, paddingLeft: 35, paddingRight: 35 }}>
           <div
             style={{
@@ -87,8 +82,13 @@ export default class App extends Component {
               />
             </Route>
             {this.state.ingreso && (
-              <Route path="/inicio" exact component={Inicio} />
+              <>
+                <Route path="/inicio" exact component={Inicio} />
+                <Route path="/nuevo" exact component={Nuevo} />
+                <Route path="/mostrar" exact component={Mostrar} />
+              </>
             )}
+
             <Route>ERROR 404</Route>
           </Switch>
           {!this.state.ingreso && <Redirect to="/" />}
