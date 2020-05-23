@@ -1,4 +1,6 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import { Icon, Table, Button } from "react-materialize";
 import "./Mostrar.css";
 
@@ -7,6 +9,7 @@ export default class Mostrar extends Component {
     super(props);
     this.state = {
       proyectos: [],
+      cerrar: false,
     };
   }
 
@@ -14,6 +17,8 @@ export default class Mostrar extends Component {
     this.cargar();
     console.log(this.state.proyectos);
   }
+
+  cerrar = () => this.setState({ cerrar: true });
 
   cargar = () => {
     fetch("https://combita.company/otri/php/getProyecto.php")
@@ -23,8 +28,10 @@ export default class Mostrar extends Component {
   };
 
   render() {
+    if (this.state.cerrar) return <Redirect to="/inicio" />;
     return (
       <div style={{ paddingTop: 10, paddingLeft: 35, paddingRight: 35 }}>
+        <div className="datos" />
         <div className="scroll">
           <Table id="customers">
             <thead>
@@ -105,6 +112,26 @@ export default class Mostrar extends Component {
               })}
             </tbody>
           </Table>
+        </div>
+        <div className="botones">
+          <a
+            className="waves-effect waves-light btn"
+            style={{
+              marginTop: 12,
+              marginRight: 5,
+              borderRadius: 5,
+              backgroundColor: "#1B7FCF",
+              color: "white",
+              fontSize: 15,
+              width: "10%",
+              textAlign: "left",
+              float: "right",
+            }}
+            onClick={this.cerrar}
+          >
+            Cerrar
+            <Icon left>close</Icon>
+          </a>
         </div>
       </div>
     );
