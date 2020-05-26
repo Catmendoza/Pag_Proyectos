@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from "react";
 import Login from "./components/Login";
 import Inicio from "./components/Inicio";
@@ -65,7 +66,7 @@ export default class App extends Component {
                 }}
               >
                 <i className="material-icons medium">
-                  <a className="white-text" onClick={this.cambioFalse}>
+                  <a className="white-text" onClick={this.cambioFalse} href="#">
                     exit_to_app
                   </a>
                 </i>

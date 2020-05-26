@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { Icon, TextInput } from "react-materialize";
+import { Icon, Button } from "react-materialize";
+import axios from "axios";
 
 import "./Nuevo.css";
 
@@ -45,20 +46,17 @@ export default class Nuevo extends Component {
     this.setState({ [e.target.name]: e.target.value });
   };
 
-  agregar(e) {
+  agregar = async (e) => {
     e.preventDefault();
 
     const data = new FormData(e.target);
+    console.log("Si entro");
 
-    fetch("localhost/OTRI/createProyecto.php", {
-      mode: "no-cors",
-      method: "POST",
-      body: data,
-    })
-      .then((res) => res.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.log(err));
-  }
+    axios.post(`http://localhost/OTRI/createProyecto.php`, data).then((res) => {
+      console.log(res);
+      console.log(res.data);
+    });
+  };
 
   cerrar = () => this.setState({ cerrar: true });
 
@@ -214,7 +212,9 @@ export default class Nuevo extends Component {
               <select
                 className="browser-default"
                 id="select_1_nuevo"
-                name="Impacto"
+                name="imp_pro"
+                value={this.state.imp_pro}
+                onChange={this.handleChange}
                 style={{
                   width: "100%",
                   height: 30,
@@ -223,9 +223,6 @@ export default class Nuevo extends Component {
                   borderColor: "transparent",
                 }}
               >
-                <option value="" disabled selected>
-                  -
-                </option>
                 <option value="EXTERNO">Externo</option>
                 <option value="INTERNO">Interno</option>
               </select>
@@ -728,7 +725,7 @@ export default class Nuevo extends Component {
             </div>
           </div>
           <div className="botones">
-            <TextInput
+            <Button
               className="waves-effect waves-light btn"
               style={{
                 marginTop: 12,
@@ -742,7 +739,9 @@ export default class Nuevo extends Component {
                 float: "right",
               }}
               type="submit"
-            ></TextInput>
+            >
+              Crear
+            </Button>
             <a
               className="waves-effect waves-light btn"
               style={{
