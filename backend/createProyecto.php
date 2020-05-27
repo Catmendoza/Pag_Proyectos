@@ -23,7 +23,7 @@
   $val_esp_otr = $_POST["val_esp_otr"] == "" ? "NULL": $_POST["val_esp_otr"];
   $cont_esp_usc = $_POST["cont_esp_usc"] == "" ? "NULL": $_POST["cont_esp_usc"];
   $fec_ini_pro = $_POST["fec_ini_pro"] == "" ? "0000-00-00": $_POST["fec_ini_pro"];
-  $fec_fin_pro = $_POST["fec_fin_pro"] == "" ? "0000-00-00": $_POST["fec_fin_pro"];;
+  $fec_fin_pro = $_POST["fec_fin_pro"] == "" ? "0000-00-00": $_POST["fec_fin_pro"];
   $pro_pro = $_POST["pro_pro"];
   $obs_pro = $_POST["obs_pro"];
   $val_eje_usc = $_POST["val_eje_usc"] == "" ? "NULL": $_POST["val_eje_usc"];
