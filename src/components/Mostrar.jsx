@@ -2,6 +2,7 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Icon, Table, Button } from "react-materialize";
+import axios from "axios";
 import "./Mostrar.css";
 
 export default class Mostrar extends Component {
@@ -21,9 +22,20 @@ export default class Mostrar extends Component {
   cerrar = () => this.setState({ cerrar: true });
 
   cargar = () => {
-    fetch("https://combita.company/otri/php/getProyecto.php")
+    fetch("http://localhost/OTRI/getProyecto.php")
       .then((res) => res.json())
       .then((data) => this.setState({ proyectos: data }))
+      .catch((err) => console.log(err));
+  };
+
+  borrarDato = (id_pro) => {
+    axios
+      .get(`http://localhost/OTRI/deleteProyecto.php?id=${id_pro}`)
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data.data);
+        this.cargar();
+      })
       .catch((err) => console.log(err));
   };
 
@@ -96,7 +108,12 @@ export default class Mostrar extends Component {
                     <td>{proyecto.val_eje_usc}</td>
                     <td>{proyecto.arc_fis_pro}</td>
                     <td>
-                      <Button small waves="light" className="red darken -3">
+                      <Button
+                        small
+                        waves="light"
+                        className="red darken -3"
+                        onClick={() => this.borrarDato(proyecto.id_pro)}
+                      >
                         <Icon>delete</Icon>
                       </Button>
                       <Button

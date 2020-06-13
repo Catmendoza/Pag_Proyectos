@@ -1,9 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { Icon, Table, Button, Modal } from "react-materialize";
+import { Icon, Table, Button } from "react-materialize";
+import M from "materialize-css";
+import axios from "axios";
 import "./Inicio.css";
 import "./Nuevo.jsx";
+import "./Actualizar.jsx";
 
 export default class Inicio extends Component {
   constructor(props) {
@@ -15,14 +18,17 @@ export default class Inicio extends Component {
       impacto: "",
       busqueda: "",
       redireccion: false,
+      rediactualizar: false,
       mostrarTodo: false,
       mostrarUno: [],
       mostrar: false,
+      ModalProyecto: "",
+      proyectoSeleccionado: "",
     };
   }
 
   cargar = () => {
-    fetch("https://combita.company/otri/php/getProyecto.php")
+    fetch("http://localhost/OTRI/getProyecto.php")
       .then((res) => res.json())
       .then((data) => this.setState({ proyectos: data, proyectosCopia: data }))
       .catch((err) => console.log(err));
@@ -30,7 +36,14 @@ export default class Inicio extends Component {
 
   componentDidMount() {
     this.cargar();
-    console.log(this.state.proyectos);
+    M.Modal.init(this.Modal, {
+      inDuration: 250,
+      outDuration: 250,
+      opacity: 0.5,
+      dismissible: true,
+      startingTop: "4%",
+      endingTop: "10%",
+    });
   }
 
   cambioEstado = (e) => this.setState({ [e.target.name]: e.target.value });
@@ -188,7 +201,36 @@ export default class Inicio extends Component {
 
   mostrarTodo = () => this.setState({ mostrarTodo: true });
 
+  cambioModal = async (proyecto) => {
+    await this.setState({
+      ModalProyecto: proyecto,
+    });
+  };
+
+  borrarDato = (id_pro) => {
+    axios
+      .get(`http://localhost/OTRI/deleteProyecto.php?id=${id_pro}`)
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data.data);
+        this.cargar();
+      })
+      .catch((err) => console.log(err));
+  };
+
+  actualizar = async (pro) =>
+    await this.setState({ proyectoSeleccionado: pro, rediactualizar: true });
+
   render() {
+    if (this.state.rediactualizar)
+      return (
+        <Redirect
+          to={{
+            pathname: "/actualizar",
+            state: { proyecto: this.state.proyectoSeleccionado },
+          }}
+        />
+      );
     if (this.state.mostrarTodo) return <Redirect to="/mostrar" />;
     if (this.state.redireccion) return <Redirect to="/nuevo" />;
     if (localStorage.getItem("admin") !== "")
@@ -290,7 +332,7 @@ export default class Inicio extends Component {
               </a>
               <div style={{ flexGrow: 8 }}>
                 <input
-                  placeholder="Buscar"
+                  placeholder=" Buscar"
                   id="busq"
                   type="search"
                   className="validate"
@@ -303,6 +345,8 @@ export default class Inicio extends Component {
                     marginLeft: 50,
                     marginTop: 10,
                     height: 40,
+                    textAlign: "left",
+
                     borderRadius: 5,
                     background: "#ffffff",
                   }}
@@ -348,141 +392,28 @@ export default class Inicio extends Component {
                         <td>{proyecto.inv_pro}</td>
                         <td>{proyecto.ent_eje_pro}</td>
                         <td>
-                          <Button small waves="light" className="red darken -3">
+                          <Button
+                            small
+                            className="red darken -3"
+                            onClick={() => this.borrarDato(proyecto.id_pro)}
+                          >
                             <Icon>delete</Icon>
                           </Button>
                           <Button
+                            size="small"
+                            className="modal-trigger yellow darken -3"
+                            data-target="modal1"
+                            onClick={this.cambioModal(proyecto)}
+                          >
+                            <Icon>remove_red_eye</Icon>
+                          </Button>
+                          <Button
                             small
-                            waves="light"
                             style={{ backgroundColor: "#1B7FCF" }}
+                            onClick={() => this.actualizar(proyecto)}
                           >
                             <Icon>edit</Icon>
                           </Button>
-
-                          <Modal
-                            actions={[
-                              <Button
-                                flat
-                                modal="close"
-                                node="button"
-                                waves="blue"
-                              >
-                                Close
-                              </Button>,
-                            ]}
-                            trigger={
-                              <Button
-                                small
-                                waves="light"
-                                style={{ backgroundColor: "#f8be52" }}
-                              >
-                                <Icon>remove_red_eye</Icon>
-                              </Button>
-                            }
-                          >
-                            <div className="scroll">
-                              <Table id="customers">
-                                <thead>
-                                  <tr>
-                                    <th data-field="ani_pro">Año</th>
-                                    <th data-field="tip_pro">
-                                      Tip. Convocatoria
-                                    </th>
-                                    <th data-field="con_pro">
-                                      Nom. Convocatoria
-                                    </th>
-                                    <th data-field="fac_pro">Facultad</th>
-                                    <th data-field="tit_pro">Título</th>
-                                    <th data-field="cod_pro">Codigo</th>
-                                    <th data-field="est_pro">Estado</th>
-                                    <th data-field="inv_prin">
-                                      Inv. Principal
-                                    </th>
-                                    <th data-field="co_inv_pro">
-                                      Co-investigadores
-                                    </th>
-                                    <th data-field="inv_lid_pro">Inv. Lider</th>
-                                    <th data-field="gru_pro">
-                                      Grupo investigación
-                                    </th>
-                                    <th data-field="ent_eje_pro">
-                                      Ent. ejecutora
-                                    </th>
-                                    <th data-field="otr_ent_par">
-                                      Otra entidad participante
-                                    </th>
-                                    <th data-field="val_efe_tot">
-                                      Val. Efectivo total
-                                    </th>
-                                    <th data-field="val_esp_tot">
-                                      Val. Especie total
-                                    </th>
-                                    <th data-field="val_tot_pro">
-                                      Val. Total proyecto
-                                    </th>
-                                    <th data-field="val_efe_fin">
-                                      Val. Efectivo financiado
-                                    </th>
-                                    <th data-field="val_efe_usc">
-                                      Val. Efectivo USC
-                                    </th>
-                                    <th data-field="val_esp_otr_ent">
-                                      Val. Especie otra entidad
-                                    </th>
-                                    <th data-field="con_esp_usc">
-                                      Contrapartida especie USC
-                                    </th>
-                                    <th data-field="fec_ini">Fec. Inicio</th>
-                                    <th data-field="fec_fin">
-                                      Fec. Finalización
-                                    </th>
-                                    <th data-field="pro_pro">Prórroga</th>
-                                    <th data-field="obv_pro">Observaciones</th>
-                                    <th data-field="val_eje_usc">
-                                      Val. Ejecutado por la USC
-                                    </th>
-                                    <th data-field="arc_fis_pro">
-                                      Archivo físico
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {this.state.proyectos.map((proyecto) => {
-                                    return (
-                                      <tr key={proyecto.id_pro}>
-                                        <td>{proyecto.ani_pro}</td>
-                                        <td>{proyecto.tip_pro}</td>
-                                        <td>{proyecto.con_pro}</td>
-                                        <td>{proyecto.fac_pro}</td>
-                                        <td>{proyecto.tit_pro}</td>
-                                        <td>{proyecto.cod_pro}</td>
-                                        <td>{proyecto.est_pro}</td>
-                                        <td>{proyecto.inv_pro}</td>
-                                        <td>{proyecto.co_inv_pro}</td>
-                                        <td>{proyecto.inv_lid_pro}</td>
-                                        <td>{proyecto.gru_pro}</td>
-                                        <td>{proyecto.ent_eje_pro}</td>
-                                        <td>{proyecto.otr_ent_par}</td>
-                                        <td>{proyecto.val_efe_tot}</td>
-                                        <td>{proyecto.val_esp_tot}</td>
-                                        <td>{proyecto.val_tot_pro}</td>
-                                        <td>{proyecto.val_efe_fin}</td>
-                                        <td>{proyecto.val_efe_usc}</td>
-                                        <td>{proyecto.val_esp_otr}</td>
-                                        <td>{proyecto.cont_esp_usc}</td>
-                                        <td>{proyecto.fec_ini_pro}</td>
-                                        <td>{proyecto.fec_fin_pro}</td>
-                                        <td>{proyecto.pro_pro}</td>
-                                        <td>{proyecto.obs_pro}</td>
-                                        <td>{proyecto.val_eje_usc}</td>
-                                        <td>{proyecto.arc_fis_pro}</td>
-                                      </tr>
-                                    );
-                                  })}
-                                </tbody>
-                              </Table>
-                            </div>
-                          </Modal>
                         </td>
                       </tr>
                     );
@@ -504,7 +435,6 @@ export default class Inicio extends Component {
               <div className="botonVertodo">
                 <Button
                   small
-                  waves="light"
                   style={{ backgroundColor: "#1B7FCF" }}
                   onClick={this.mostrarTodo}
                 >
@@ -517,6 +447,96 @@ export default class Inicio extends Component {
                 Resultado: {this.state.proyectos.length} de{" "}
                 {this.state.proyectosCopia.length}
               </div>
+            </div>
+          </div>
+          <div
+            ref={(Modal) => (this.Modal = Modal)}
+            id="modal1"
+            className="modal"
+          >
+            <div className="modal-content">
+              {console.log(this.state.ModalProyecto)}
+              <Table id="customers">
+                <thead>
+                  <tr>
+                    <th data-field="ani_pro">Año</th>
+                    <th data-field="tip_pro">Tip. Convocatoria</th>
+                    <th data-field="con_pro">Nom. Convocatoria</th>
+                    <th data-field="fac_pro">Facultad</th>
+                    <th data-field="tit_pro">Título</th>
+                    <th data-field="cod_pro">Codigo</th>
+                    <th data-field="est_pro">Estado</th>
+                    <th data-field="inv_prin">Inv. Principal</th>
+                    <th data-field="co_inv_pro">Co-investigadores</th>
+                    <th data-field="inv_lid_pro">Inv. Lider</th>
+                    <th data-field="gru_pro">Grupo investigación</th>
+                    <th data-field="ent_eje_pro">Ent. ejecutora</th>
+                    <th data-field="otr_ent_par">Otra entidad participante</th>
+                    <th data-field="val_efe_tot">Val. Efectivo total</th>
+                    <th data-field="val_esp_tot">Val. Especie total</th>
+                    <th data-field="val_tot_pro">Val. Total proyecto</th>
+                    <th data-field="val_efe_fin">Val. Efectivo financiado</th>
+                    <th data-field="val_efe_usc">Val. Efectivo USC</th>
+                    <th data-field="val_esp_otr_ent">
+                      Val. Especie otra entidad
+                    </th>
+                    <th data-field="con_esp_usc">Contrapartida especie USC</th>
+                    <th data-field="fec_ini">Fec. Inicio</th>
+                    <th data-field="fec_fin">Fec. Finalización</th>
+                    <th data-field="pro_pro">Prórroga</th>
+                    <th data-field="obs_pro">Observaciones</th>
+                    <th data-field="val_eje_usc">Val. Ejecutado por la USC</th>
+                    <th data-field="arc_fis_pro">Archivo físico</th>
+                    <th data-field="botones"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr key={this.state.ModalProyecto.id_pro}>
+                    <td>{this.state.ModalProyecto.ani_pro}</td>
+                    <td>{this.state.ModalProyecto.tip_pro}</td>
+                    <td>{this.state.ModalProyecto.con_pro}</td>
+                    <td>{this.state.ModalProyecto.fac_pro}</td>
+                    <td>{this.state.ModalProyecto.tit_pro}</td>
+                    <td>{this.state.ModalProyecto.cod_pro}</td>
+                    <td>{this.state.ModalProyecto.est_pro}</td>
+                    <td>{this.state.ModalProyecto.inv_pro}</td>
+                    <td>{this.state.ModalProyecto.co_inv_pro}</td>
+                    <td>{this.state.ModalProyecto.inv_lid_pro}</td>
+                    <td>{this.state.ModalProyecto.gru_pro}</td>
+                    <td>{this.state.ModalProyecto.ent_eje_pro}</td>
+                    <td>{this.state.ModalProyecto.otr_ent_par}</td>
+                    <td>{this.state.ModalProyecto.val_efe_tot}</td>
+                    <td>{this.state.ModalProyecto.val_esp_tot}</td>
+                    <td>{this.state.ModalProyecto.val_tot_pro}</td>
+                    <td>{this.state.ModalProyecto.val_efe_fin}</td>
+                    <td>{this.state.ModalProyecto.val_efe_usc}</td>
+                    <td>{this.state.ModalProyecto.val_esp_otr_ent}</td>
+                    <td>{this.state.ModalProyecto.con_esp_usc}</td>
+                    <td>{this.state.ModalProyecto.fec_ini}</td>
+                    <td>{this.state.ModalProyecto.fec_fin}</td>
+                    <td>{this.state.ModalProyecto.pro_pro}</td>
+                    <td>{this.state.ModalProyecto.obs_pro}</td>
+                    <td>{this.state.ModalProyecto.val_eje_usc}</td>
+                    <td>{this.state.ModalProyecto.arc_fis_pro}</td>
+                    <td>
+                      <Button small className="red darken -3">
+                        <Icon>delete</Icon>
+                      </Button>
+                      <Button small style={{ backgroundColor: "#1B7FCF" }}>
+                        <Icon>edit</Icon>
+                      </Button>
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
+            <div className="modal-footer">
+              <Button
+                className="modal-close left"
+                style={{ backgroundColor: "#1B7FCF" }}
+              >
+                Cerrar
+              </Button>
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import Login from "./components/Login";
 import Inicio from "./components/Inicio";
 import Nuevo from "./components/Nuevo";
 import Mostrar from "./components/Mostrar";
+import Actualizar from "./components/Actualizar";
 import {
   BrowserRouter as Router,
   Switch,
@@ -21,8 +22,8 @@ export default class App extends Component {
   }
 
   cambioTrue = () => this.setState({ ingreso: true });
-  cambioFalse = () => {
-    this.setState({ ingreso: false });
+  cambioFalse = async () => {
+    await this.setState({ ingreso: false });
 
     localStorage.setItem("admin", "");
   };
@@ -87,6 +88,7 @@ export default class App extends Component {
                 <Route path="/inicio" exact component={Inicio} />
                 <Route path="/nuevo" exact component={Nuevo} />
                 <Route path="/mostrar" exact component={Mostrar} />
+                <Route path="/actualizar" exact component={Actualizar} />
               </>
             )}
 

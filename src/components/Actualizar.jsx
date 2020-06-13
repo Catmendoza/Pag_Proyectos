@@ -3,42 +3,43 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Icon, Button } from "react-materialize";
 import axios from "axios";
+import "./Actualizar.css";
 
-import "./Nuevo.css";
-
-export default class Nuevo extends Component {
+export default class Actualizar extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      cerrar: false,
 
-      cod_pro: "",
-      tit_pro: "",
-      ani_pro: "",
-      tip_pro: "",
-      con_pro: "",
-      fac_pro: "",
-      est_pro: "",
-      imp_pro: "",
-      inv_pro: "",
-      co_inv_pro: "",
-      inv_lid_pro: "",
-      gru_pro: "",
-      otr_ent_par: "",
-      ent_eje_pro: "",
-      val_efe_tot: "",
-      val_esp_tot: "",
-      val_tot_pro: "",
-      val_efe_fin: "",
-      val_efe_usc: "",
-      val_esp_otr: "",
-      cont_esp_usc: "",
-      fec_ini_pro: "",
-      fec_fin_pro: "",
-      pro_pro: "",
-      obs_pro: "",
-      val_eje_usc: "",
+    this.state = {
+      id: this.props.location.state.proyecto.id_pro,
+      cod_pro: this.props.location.state.proyecto.cod_pro,
+      tit_pro: this.props.location.state.proyecto.tit_pro,
+      ani_pro: this.props.location.state.proyecto.ani_pro,
+      tip_pro: this.props.location.state.proyecto.tip_pro,
+      con_pro: this.props.location.state.proyecto.con_pro,
+      fac_pro: this.props.location.state.proyecto.fac_pro,
+      est_pro: this.props.location.state.proyecto.est_pro,
+      imp_pro: this.props.location.state.proyecto.imp_pro,
+      inv_pro: this.props.location.state.proyecto.inv_pro,
+      co_inv_pro: this.props.location.state.proyecto.co_inv_pro,
+      inv_lid_pro: this.props.location.state.proyecto.inv_lid_pro,
+      gru_pro: this.props.location.state.proyecto.gru_pro,
+      otr_ent_par: this.props.location.state.proyecto.otr_ent_par,
+      ent_eje_pro: this.props.location.state.proyecto.ent_eje_pro,
+      val_efe_tot: this.props.location.state.proyecto.val_efe_tot,
+      val_esp_tot: this.props.location.state.proyecto.val_esp_tot,
+      val_tot_pro: this.props.location.state.proyecto.val_tot_pro,
+      val_efe_fin: this.props.location.state.proyecto.val_efe_fin,
+      val_efe_usc: this.props.location.state.proyecto.val_efe_usc,
+      val_esp_otr: this.props.location.state.proyecto.val_esp_otr,
+      cont_esp_usc: this.props.location.state.proyecto.cont_esp_usc,
+      fec_ini_pro: this.props.location.state.proyecto.fec_ini_pro,
+      fec_fin_pro: this.props.location.state.proyecto.fec_fin_pro,
+      pro_pro: this.props.location.state.proyecto.pro_pro,
+      obs_pro: this.props.location.state.proyecto.obs_pro,
+      val_eje_usc: this.props.location.state.proyecto.val_eje_usc,
       arc_fis_pro: "",
+      cerrar: false,
+      proyectos: [],
     };
   }
 
@@ -50,44 +51,11 @@ export default class Nuevo extends Component {
     e.preventDefault();
 
     const data = new FormData(e.target);
-    console.log("Si entro");
+    console.log("actualizar");
 
-    axios.post(`http://localhost/OTRI/createProyecto.php`, data).then((res) => {
-      console.log(res);
-      console.log(res.data);
+    axios.post(`http://localhost/OTRI/updateProyecto.php`, data).then((res) => {
       this.setState({ cerrar: true });
-    });
-  };
-
-  limpiar = () => {
-    this.setState({
-      cod_pro: "",
-      tit_pro: "",
-      ani_pro: "",
-      tip_pro: "",
-      con_pro: "",
-      fac_pro: "",
-      est_pro: "",
-      imp_pro: "",
-      inv_pro: "",
-      co_inv_pro: "",
-      inv_lid_pro: "",
-      gru_pro: "",
-      otr_ent_par: "",
-      ent_eje_pro: "",
-      val_efe_tot: "",
-      val_esp_tot: "",
-      val_tot_pro: "",
-      val_efe_fin: "",
-      val_efe_usc: "",
-      val_esp_otr: "",
-      cont_esp_usc: "",
-      fec_ini_pro: "",
-      fec_fin_pro: "",
-      pro_pro: "",
-      obs_pro: "",
-      val_eje_usc: "",
-      arc_fis_pro: "",
+      console.log(res);
     });
   };
 
@@ -97,8 +65,15 @@ export default class Nuevo extends Component {
     if (this.state.cerrar) return <Redirect to="/inicio" />;
     return (
       <div style={{ paddingTop: 10, paddingLeft: 35, paddingRight: 35 }}>
-        <div className="datos" />
+        <div className="datosActualizar" />
         <form onSubmit={this.agregar}>
+          <input
+            type="hidden"
+            value={this.state.id}
+            id="id"
+            name="id"
+            disable
+          />
           <div
             style={{
               display: "flex",
@@ -108,13 +83,13 @@ export default class Nuevo extends Component {
             }}
           >
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginLeft: 5, marginRight: 10 }}
             >
               Codigo:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexBasis: 100 }}
             >
               {/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
@@ -133,11 +108,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Título del proyecto:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 8 }}
             >
               <input
@@ -155,11 +130,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Año convocatoria:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 5, flexBasis: 100 }}
             >
               <input
@@ -189,13 +164,13 @@ export default class Nuevo extends Component {
             }}
           >
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginLeft: 5, marginRight: 10 }}
             >
               Tipo convocatoria:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -213,11 +188,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Nombre convocatoria:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -235,11 +210,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Impacto:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 5, flexBasis: 110 }}
             >
               <select
@@ -263,11 +238,11 @@ export default class Nuevo extends Component {
                 <option value="INTERNO">Interno</option>
               </select>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Estado:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 5, flexBasis: 130 }}
             >
               <select
@@ -303,13 +278,13 @@ export default class Nuevo extends Component {
             }}
           >
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginLeft: 5, marginRight: 10 }}
             >
               Entidad ejecutora:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -327,11 +302,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Otra entidad participante:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -349,11 +324,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Facultad:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 5, flexGrow: 4 }}
             >
               <input
@@ -382,13 +357,13 @@ export default class Nuevo extends Component {
             }}
           >
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginLeft: 5, marginRight: 10 }}
             >
               Fecha Inicio:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexBasis: 80 }}
             >
               <input
@@ -406,11 +381,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Fecha finalización:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexBasis: 80 }}
             >
               <input
@@ -428,11 +403,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Prórroga:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -450,11 +425,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Observaciones:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -483,13 +458,13 @@ export default class Nuevo extends Component {
             }}
           >
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginLeft: 5, marginRight: 10 }}
             >
               Investigador principal:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -507,11 +482,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Co-investigadores:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -529,11 +504,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Grupo de investigación:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 5, flexBasis: 200 }}
             >
               <input
@@ -562,13 +537,13 @@ export default class Nuevo extends Component {
             }}
           >
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginLeft: 5, marginRight: 10 }}
             >
               Investigador lider:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -586,11 +561,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Valor efectivo financiado:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 4 }}
             >
               <input
@@ -608,11 +583,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Valor total de especie:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 5, flexBasis: 200 }}
             >
               <input
@@ -641,13 +616,13 @@ export default class Nuevo extends Component {
             }}
           >
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginLeft: 5, marginRight: 10 }}
             >
               Valor especie de otra entidad:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexBasis: 200 }}
             >
               <input
@@ -665,11 +640,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Valor ejecutado por la USC:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexBasis: 200 }}
             >
               <input
@@ -687,11 +662,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Contrapartida en especie USC:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 5, flexBasis: 180 }}
             >
               <input
@@ -720,13 +695,13 @@ export default class Nuevo extends Component {
             }}
           >
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginLeft: 5, marginRight: 10 }}
             >
               Valor total proyecto:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 2 }}
             >
               <input
@@ -744,11 +719,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Valor total efectivo:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 2 }}
             >
               <input
@@ -766,11 +741,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Valor efectivo USC:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 10, flexGrow: 2 }}
             >
               <input
@@ -788,11 +763,11 @@ export default class Nuevo extends Component {
                 }}
               ></input>
             </div>
-            <div className="columnanuevo" style={{ marginRight: 10 }}>
+            <div className="columnanuevoActualizar" style={{ marginRight: 10 }}>
               Archivo físico:
             </div>
             <div
-              className="columnanuevo"
+              className="columnanuevoActualizar"
               style={{ marginRight: 5, flexBasis: 200 }}
             >
               <input
@@ -811,7 +786,7 @@ export default class Nuevo extends Component {
               ></input>
             </div>
           </div>
-          <div className="botones">
+          <div className="botonesActualizar">
             <Button
               className="waves-effect waves-light btn"
               style={{
