@@ -4,7 +4,6 @@ import Login from "./components/Login";
 import Inicio from "./components/Inicio";
 import Nuevo from "./components/Nuevo";
 import Mostrar from "./components/Mostrar";
-import Actualizar from "./components/Actualizar";
 import {
   BrowserRouter as Router,
   Switch,
@@ -17,16 +16,12 @@ import Titulo from "./assets/image/unnamed.png";
 export default class App extends Component {
   constructor(props) {
     super(props);
-
-    this.state = { ingreso: localStorage.getItem("admin") !== "" };
+    this.state = { ingreso: true };
   }
 
   cambioTrue = () => this.setState({ ingreso: true });
-  cambioFalse = async () => {
-    await this.setState({ ingreso: false });
 
-    localStorage.setItem("admin", "");
-  };
+  cambioFalse = () => this.setState({ ingreso: false });
 
   render() {
     document.body.style = "background: #a0dded";
@@ -49,10 +44,16 @@ export default class App extends Component {
                 left: "32%",
               }}
             >
-              <img src={Titulo} alt="Titulo de la plataforma" width="500" />
+              <img
+                className="responsive-img"
+                src={Titulo}
+                alt="Titulo de la plataforma"
+                width="500"
+              />
             </div>
 
             <img
+              className="responsive-img"
               src={Logo}
               alt="Logo de la universidad Santiago de Cali"
               width="110"
@@ -67,7 +68,7 @@ export default class App extends Component {
                 }}
               >
                 <i className="material-icons medium">
-                  <a className="white-text" onClick={this.cambioFalse} href="#">
+                  <a href="#" className="white-text" onClick={this.cambioFalse}>
                     exit_to_app
                   </a>
                 </i>
@@ -88,11 +89,14 @@ export default class App extends Component {
                 <Route path="/inicio" exact component={Inicio} />
                 <Route path="/nuevo" exact component={Nuevo} />
                 <Route path="/mostrar" exact component={Mostrar} />
-                <Route path="/actualizar" exact component={Actualizar} />
               </>
             )}
-
-            <Route>ERROR 404</Route>
+            <Route path="/Login" exact>
+              <Login
+                cambioTrue={this.cambioTrue}
+                cambioFalse={this.cambioFalse}
+              />
+            </Route>
           </Switch>
           {!this.state.ingreso && <Redirect to="/" />}
         </Router>

@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Icon, Table, Button } from "react-materialize";
 import axios from "axios";
+import Swal from "sweetalert2";
 import "./Mostrar.css";
 
 export default class Mostrar extends Component {
@@ -11,6 +12,8 @@ export default class Mostrar extends Component {
     this.state = {
       proyectos: [],
       cerrar: false,
+      rediactualizar: false,
+      proyectoSeleccionado: "",
     };
   }
 
@@ -29,17 +32,48 @@ export default class Mostrar extends Component {
   };
 
   borrarDato = (id_pro) => {
-    axios
-      .get(`http://localhost/OTRI/deleteProyecto.php?id=${id_pro}`)
-      .then((res) => res.data)
-      .then((data) => {
-        console.log(data.data);
-        this.cargar();
-      })
-      .catch((err) => console.log(err));
+    Swal.fire({
+      title: "¿Estas seguro?",
+      text: "¡No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, ¡eliminar esto!",
+      cancelButtonText: "No, ¡cancelar!",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.value) {
+        axios
+          .get(`http://localhost/OTRI/deleteProyecto.php?id=${id_pro}`)
+          .then((res) => res.data)
+          .then((data) => {
+            console.log(data.data);
+            this.cargar();
+          })
+          .catch((err) => console.log(err));
+        Swal.fire("¡Eliminado!", "Su proyecto ha sido eliminado ", "success");
+      } else if (
+        /* Read more about handling dismissals below */
+        result.dismiss === Swal.DismissReason.cancel
+      ) {
+        Swal.fire("Cancelado", "Su proyecto está seguro", "error");
+      }
+    });
   };
 
+  actualizar = async (pro) =>
+    await this.setState({ proyectoSeleccionado: pro, rediactualizar: true });
   render() {
+    if (this.state.rediactualizar)
+      return (
+        <Redirect
+          to={{
+            pathname: "/actualizar",
+            state: { proyecto: this.state.proyectoSeleccionado },
+          }}
+        />
+      );
     if (this.state.cerrar) return <Redirect to="/inicio" />;
     return (
       <div style={{ paddingTop: 10, paddingLeft: 35, paddingRight: 35 }}>
@@ -110,7 +144,6 @@ export default class Mostrar extends Component {
                     <td>
                       <Button
                         small
-                        waves="light"
                         className="red darken -3"
                         onClick={() => this.borrarDato(proyecto.id_pro)}
                       >
@@ -118,8 +151,8 @@ export default class Mostrar extends Component {
                       </Button>
                       <Button
                         small
-                        waves="light"
                         style={{ backgroundColor: "#1B7FCF" }}
+                        onClick={() => this.actualizar(proyecto)}
                       >
                         <Icon>edit</Icon>
                       </Button>

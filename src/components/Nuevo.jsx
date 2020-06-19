@@ -3,63 +3,114 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Icon, Button } from "react-materialize";
 import axios from "axios";
-
+import Swal from "sweetalert2";
 import "./Nuevo.css";
 
 export default class Nuevo extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      cerrar: false,
 
-      cod_pro: "",
-      tit_pro: "",
-      ani_pro: "",
-      tip_pro: "",
-      con_pro: "",
-      fac_pro: "",
-      est_pro: "",
-      imp_pro: "",
-      inv_pro: "",
-      co_inv_pro: "",
-      inv_lid_pro: "",
-      gru_pro: "",
-      otr_ent_par: "",
-      ent_eje_pro: "",
-      val_efe_tot: "",
-      val_esp_tot: "",
-      val_tot_pro: "",
-      val_efe_fin: "",
-      val_efe_usc: "",
-      val_esp_otr: "",
-      cont_esp_usc: "",
-      fec_ini_pro: "",
-      fec_fin_pro: "",
-      pro_pro: "",
-      obs_pro: "",
-      val_eje_usc: "",
-      arc_fis_pro: "",
-    };
+    if (this.props.location.state.proyecto === "")
+      this.state = {
+        cod_pro: "",
+        tit_pro: "",
+        ani_pro: "",
+        tip_pro: "",
+        con_pro: "",
+        fac_pro: "",
+        est_pro: "",
+        imp_pro: "",
+        inv_pro: "",
+        co_inv_pro: "",
+        inv_lid_pro: "",
+        gru_pro: "",
+        otr_ent_par: "",
+        ent_eje_pro: "",
+        val_efe_tot: "",
+        val_esp_tot: "",
+        val_tot_pro: "",
+        val_efe_fin: "",
+        val_efe_usc: "",
+        val_esp_otr: "",
+        cont_esp_usc: "",
+        fec_ini_pro: "",
+        fec_fin_pro: "",
+        pro_pro: "",
+        obs_pro: "",
+        val_eje_usc: "",
+        arc_fis_pro: "",
+        cerrar: false,
+      };
+    else
+      this.state = {
+        id: this.props.location.state.proyecto.id_pro,
+        cod_pro: this.props.location.state.proyecto.cod_pro,
+        tit_pro: this.props.location.state.proyecto.tit_pro,
+        ani_pro: this.props.location.state.proyecto.ani_pro,
+        tip_pro: this.props.location.state.proyecto.tip_pro,
+        con_pro: this.props.location.state.proyecto.con_pro,
+        fac_pro: this.props.location.state.proyecto.fac_pro,
+        est_pro: this.props.location.state.proyecto.est_pro,
+        imp_pro: this.props.location.state.proyecto.imp_pro,
+        inv_pro: this.props.location.state.proyecto.inv_pro,
+        co_inv_pro: this.props.location.state.proyecto.co_inv_pro,
+        inv_lid_pro: this.props.location.state.proyecto.inv_lid_pro,
+        gru_pro: this.props.location.state.proyecto.gru_pro,
+        otr_ent_par: this.props.location.state.proyecto.otr_ent_par,
+        ent_eje_pro: this.props.location.state.proyecto.ent_eje_pro,
+        val_efe_tot: this.props.location.state.proyecto.val_efe_tot,
+        val_esp_tot: this.props.location.state.proyecto.val_esp_tot,
+        val_tot_pro: this.props.location.state.proyecto.val_tot_pro,
+        val_efe_fin: this.props.location.state.proyecto.val_efe_fin,
+        val_efe_usc: this.props.location.state.proyecto.val_efe_usc,
+        val_esp_otr: this.props.location.state.proyecto.val_esp_otr,
+        cont_esp_usc: this.props.location.state.proyecto.cont_esp_usc,
+        fec_ini_pro: this.props.location.state.proyecto.fec_ini_pro,
+        fec_fin_pro: this.props.location.state.proyecto.fec_fin_pro,
+        pro_pro: this.props.location.state.proyecto.pro_pro,
+        obs_pro: this.props.location.state.proyecto.obs_pro,
+        val_eje_usc: this.props.location.state.proyecto.val_eje_usc,
+        arc_fis_pro: "",
+        cerrar: false,
+      };
   }
 
-  handleChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
+  handleChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
-  agregar = async (e) => {
+  agregar = (e) => {
     e.preventDefault();
 
     const data = new FormData(e.target);
-    console.log("Si entro");
-
-    axios.post(`http://localhost/OTRI/createProyecto.php`, data).then((res) => {
-      console.log(res);
-      console.log(res.data);
-      this.setState({ cerrar: true });
-    });
+    if (this.props.location.state.proyecto === "")
+      axios
+        .post(`http://localhost/OTRI/createProyecto.php`, data)
+        .then((res) => {
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "El proyecto ha sido almacenada.",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+          this.setState({ cerrar: true });
+        });
+    else
+      axios
+        .post(`http://localhost/OTRI/updateProyecto.php`, data)
+        .then((res) => {
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "El proyecto ha sido actualizado.",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+          this.setState({ cerrar: true });
+          console.log(res);
+        });
   };
 
-  limpiar = () => {
+  limpiar = () =>
     this.setState({
       cod_pro: "",
       tit_pro: "",
@@ -89,7 +140,6 @@ export default class Nuevo extends Component {
       val_eje_usc: "",
       arc_fis_pro: "",
     });
-  };
 
   cerrar = () => this.setState({ cerrar: true });
 
@@ -99,6 +149,15 @@ export default class Nuevo extends Component {
       <div style={{ paddingTop: 10, paddingLeft: 35, paddingRight: 35 }}>
         <div className="datos" />
         <form onSubmit={this.agregar}>
+          {this.props.location.proyecto !== "" && (
+            <input
+              type="hidden"
+              value={this.state.id}
+              id="id"
+              name="id"
+              disable
+            />
+          )}
           <div
             style={{
               display: "flex",
@@ -256,7 +315,7 @@ export default class Nuevo extends Component {
                   borderColor: "transparent",
                 }}
               >
-                <option value="" disabled selected>
+                <option value="" disabled>
                   -
                 </option>
                 <option value="EXTERNO">Externo</option>
@@ -284,7 +343,7 @@ export default class Nuevo extends Component {
                   borderColor: "transparent",
                 }}
               >
-                <option value="" disabled selected>
+                <option value="" disabled>
                   -
                 </option>
                 <option value="PROPUESTA">Propuesta</option>
@@ -827,27 +886,31 @@ export default class Nuevo extends Component {
               }}
               type="submit"
             >
-              Guardar
+              {this.props.location.state.proyecto === ""
+                ? "Guardar"
+                : "Actualizar"}
               <Icon left>save</Icon>
             </Button>
-            <a
-              className="waves-effect waves-light btn"
-              style={{
-                marginTop: 12,
-                marginRight: 5,
-                borderRadius: 5,
-                backgroundColor: "#1B7FCF",
-                color: "white",
-                fontSize: 15,
-                width: "10%",
-                textAlign: "left",
-                float: "right",
-              }}
-              onClick={this.limpiar}
-            >
-              Limpiar
-              <Icon left>delete</Icon>
-            </a>
+            {this.props.location.state.proyecto === "" && (
+              <a
+                className="waves-effect waves-light btn"
+                style={{
+                  marginTop: 12,
+                  marginRight: 5,
+                  borderRadius: 5,
+                  backgroundColor: "#1B7FCF",
+                  color: "white",
+                  fontSize: 15,
+                  width: "10%",
+                  textAlign: "left",
+                  float: "right",
+                }}
+                onClick={this.limpiar}
+              >
+                Limpiar
+                <Icon left>delete</Icon>
+              </a>
+            )}
             <a
               className="waves-effect waves-light btn"
               style={{

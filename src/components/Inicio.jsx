@@ -4,6 +4,9 @@ import { Redirect } from "react-router-dom";
 import { Icon, Table, Button } from "react-materialize";
 import M from "materialize-css";
 import axios from "axios";
+import Swal from "sweetalert2";
+import Chart from "react-google-charts";
+import ReactPaginate from "react-paginate";
 import "./Inicio.css";
 import "./Nuevo.jsx";
 import "./Actualizar.jsx";
@@ -11,6 +14,7 @@ import "./Actualizar.jsx";
 export default class Inicio extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       proyectos: [],
       proyectosCopia: [],
@@ -24,18 +28,125 @@ export default class Inicio extends Component {
       mostrar: false,
       ModalProyecto: "",
       proyectoSeleccionado: "",
+      offset: 0,
+      data: [],
+      perPage: 4,
+      currentPage: 0,
+      busText: false,
     };
   }
 
-  cargar = () => {
-    fetch("http://localhost/OTRI/getProyecto.php")
-      .then((res) => res.json())
-      .then((data) => this.setState({ proyectos: data, proyectosCopia: data }))
-      .catch((err) => console.log(err));
+  cargar = (arr) =>
+    axios.get(`http://localhost/OTRI/getProyecto.php`).then(async (res) => {
+      let data = this.state.busText ? arr : res.data;
+
+      const slice = data.slice(
+        this.state.offset,
+        this.state.offset + this.state.perPage
+      );
+
+      const postData = slice.map((pd) => (
+        <React.Fragment key={pd.id_pro}>
+          <tr>
+            <td>{pd.fac_pro}</td>
+            <td>{pd.tit_pro}</td>
+            <td>{pd.est_pro}</td>
+            <td>{pd.inv_pro}</td>
+            <td>{!pd.ent_eje_pro ? "-" : pd.ent_eje_pro}</td>
+            <td>
+              <Button
+                small
+                className="red darken -3"
+                onClick={() => this.borrarDato(pd.id_pro)}
+              >
+                <Icon>delete</Icon>
+              </Button>
+              <Button
+                size="small"
+                className="modal-trigger yellow darken -3"
+                data-target="modal1"
+                onClick={() => this.cambioModal(pd)}
+              >
+                <Icon>remove_red_eye</Icon>
+              </Button>
+              <Button
+                small
+                style={{ backgroundColor: "#1B7FCF" }}
+                onClick={() => this.actualizar(pd)}
+              >
+                <Icon>edit</Icon>
+              </Button>
+            </td>
+          </tr>
+        </React.Fragment>
+      ));
+
+      this.setState(
+        {
+          pageCount: Math.ceil(data.length / this.state.perPage),
+          postData,
+          proyectos: data,
+          proyectosCopia: res.data,
+        },
+        () => this.cargarGraficas()
+      );
+    });
+
+  remover = (text) => {
+    return text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  };
+
+  cargarGraficas = () => {
+    let datosGrafica1 = [["Facultad", "Registrados"]];
+    let datosGrafica2 = [["Estado", "Cantidad"]];
+
+    let facultades = [];
+    let contadorFacultad = [];
+    let contadorEstado = [0, 0, 0];
+
+    //0 -> PROPUESTA
+    //1 -> EJECUCION
+    //2 -> TERMINADO
+
+    this.state.proyectosCopia.forEach((proyecto) => {
+      if (proyecto.fac_pro) {
+        let bandera = true;
+        let i;
+
+        for (i = 0; i < facultades.length; i++)
+          if (this.remover(proyecto.fac_pro) === this.remover(facultades[i])) {
+            bandera = false;
+            contadorFacultad[i]++;
+            break;
+          }
+
+        if (bandera) {
+          facultades.push(proyecto.fac_pro);
+          contadorFacultad.push(1);
+        }
+      }
+
+      if (proyecto.est_pro === "PROPUESTA") contadorEstado[0]++;
+      else if (proyecto.est_pro === "EJECUCION") contadorEstado[1]++;
+      else if (proyecto.est_pro === "TERMINADO") contadorEstado[2]++;
+    });
+
+    for (let i = 0; i < facultades.length; i++)
+      datosGrafica1.push([facultades[i], contadorFacultad[i]]);
+
+    datosGrafica2.push(["PROPUESTA", contadorEstado[0]]);
+    datosGrafica2.push(["EJECUCION", contadorEstado[1]]);
+    datosGrafica2.push(["TERMINADO", contadorEstado[2]]);
+
+    this.setState({ graf1: datosGrafica1, graf2: datosGrafica2 });
   };
 
   componentDidMount() {
-    this.cargar();
+    this.cargar([]);
+
     M.Modal.init(this.Modal, {
       inDuration: 250,
       outDuration: 250,
@@ -49,197 +160,219 @@ export default class Inicio extends Component {
   cambioEstado = (e) => this.setState({ [e.target.name]: e.target.value });
 
   borradoFiltrado = () => {
-    this.setState({ estado: "", impacto: "", busqueda: "" });
-    this.setState({
-      proyectos: this.state.proyectosCopia,
-    });
+    this.setState(
+      {
+        estado: "",
+        impacto: "",
+        busqueda: "",
+        proyectos: this.state.proyectosCopia,
+        busText: false,
+      },
+      () => this.cargar([])
+    );
   };
 
   buscarTexto = () => {
-    if (this.state.busqueda.length >= 4) {
-      this.setState({
-        proyectos: this.state.proyectosCopia,
-      });
+    if (this.state.busqueda.length >= 4)
+      this.setState(
+        {
+          proyectos: this.state.proyectosCopia,
+        },
+        () => {
+          let arr = [];
 
-      let arr = [];
-
-      for (let i = 0; i < this.state.proyectosCopia.length; i++) {
-        if (
-          this.state.proyectosCopia[i].tip_pro !== null &&
-          this.state.proyectosCopia[i].tip_pro
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
+          this.state.proyectos.forEach((proyecto) => {
+            if (
+              proyecto.tip_pro &&
+              this.remover(proyecto.tip_pro).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+            else if (
+              proyecto.con_pro &&
+              this.remover(proyecto.con_pro).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+            else if (
+              this.remover(proyecto.fac_pro).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+            else if (
+              this.remover(proyecto.tit_pro).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+            else if (
+              proyecto.cod_pro &&
+              proyecto.cod_pro === this.state.busqueda
+            )
+              arr.push(proyecto);
+            else if (
+              proyecto.inv_pro &&
+              this.remover(proyecto.inv_pro).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+            else if (
+              proyecto.co_inv_pro &&
+              this.remover(proyecto.co_inv_pro).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+            else if (
+              proyecto.inv_lid_pro &&
+              this.remover(proyecto.inv_lid_pro).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+            else if (
+              proyecto.ent_eje_pro &&
+              this.remover(proyecto.ent_eje_pro).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+            else if (
+              proyecto.gru_pro &&
+              this.remover(proyecto.gru_pro).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+            else if (
+              proyecto.otr_ent_par &&
+              this.remover(proyecto.otr_ent_par).search(
+                this.remover(this.state.busqueda)
+              ) !== -1
+            )
+              arr.push(proyecto);
+          });
+          this.setState({ busText: true }, () => this.cargar(arr));
         }
-        if (
-          this.state.proyectosCopia[i].con_pro !== null &&
-          this.state.proyectosCopia[i].con_pro
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-        if (
-          this.state.proyectosCopia[i].fac_pro
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-        if (
-          this.state.proyectosCopia[i].tit_pro
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-        if (
-          this.state.proyectosCopia[i].cod_pro !== null &&
-          this.state.proyectosCopia[i].cod_pro === this.state.busqueda
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-        if (
-          this.state.proyectosCopia[i].inv_pro !== null &&
-          this.state.proyectosCopia[i].inv_pro
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-        if (
-          this.state.proyectosCopia[i].co_inv_pro !== null &&
-          this.state.proyectosCopia[i].co_inv_pro
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-        if (
-          this.state.proyectosCopia[i].inv_lid_pro !== null &&
-          this.state.proyectosCopia[i].inv_lid_pro
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-        if (
-          this.state.proyectosCopia[i].ent_eje_pro !== null &&
-          this.state.proyectosCopia[i].ent_eje_pro
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-        if (
-          this.state.proyectosCopia[i].gru_pro !== null &&
-          this.state.proyectosCopia[i].gru_pro
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-        if (
-          this.state.proyectosCopia[i].otr_ent_par !== null &&
-          this.state.proyectosCopia[i].otr_ent_par
-            .toLocaleUpperCase()
-            .search(this.state.busqueda.toLocaleUpperCase()) !== -1
-        ) {
-          arr.push(this.state.proyectosCopia[i]);
-          continue;
-        }
-      }
-
-      this.setState({ proyectos: arr });
-    }
+      );
   };
 
   buscar = () => {
-    this.setState({
-      proyectos: this.state.proyectosCopia,
-    });
+    this.setState(
+      {
+        proyectos: this.state.proyectosCopia,
+      },
+      () => {
+        var arr = [];
 
-    var busqueda = [];
+        this.state.proyectos.forEach((proyecto) => {
+          if (this.state.estado !== "" && this.state.impacto !== "") {
+            if (
+              proyecto.imp_pro === this.state.impacto &&
+              proyecto.est_pro === this.state.estado
+            ) {
+              arr.push(proyecto);
+            }
+          } else {
+            if (
+              this.state.estado !== "" &&
+              proyecto.est_pro === this.state.estado
+            )
+              arr.push(proyecto);
+            if (
+              this.state.impacto !== "" &&
+              proyecto.imp_pro === this.state.impacto
+            )
+              arr.push(proyecto);
+          }
+        });
 
-    for (let i = 0; i < this.state.proyectos.length; i++) {
-      if (this.state.estado !== "" && this.state.impacto !== "") {
-        if (
-          this.state.proyectos[i].imp_pro === this.state.impacto &&
-          this.state.proyectos[i].est_pro === this.state.estado
-        ) {
-          busqueda.push(this.state.proyectos[i]);
-        }
-      } else {
-        if (this.state.estado !== "") {
-          if (this.state.proyectos[i].est_pro === this.state.estado) {
-            busqueda.push(this.state.proyectos[i]);
-          }
-        }
-        if (this.state.impacto !== "") {
-          if (this.state.proyectos[i].imp_pro === this.state.impacto) {
-            busqueda.push(this.state.proyectos[i]);
-          }
-        }
+        this.setState({ busText: true }, () => this.cargar(arr));
       }
-    }
-
-    this.setState({ proyectos: busqueda });
+    );
   };
 
   registro = () => this.setState({ redireccion: true });
 
   mostrarTodo = () => this.setState({ mostrarTodo: true });
 
-  cambioModal = async (proyecto) => {
-    await this.setState({
+  cambioModal = (proyecto) =>
+    this.setState({
       ModalProyecto: proyecto,
+    });
+
+  borrarDato = (id_pro) => {
+    Swal.fire({
+      title: "¿Estas seguro?",
+      text: "¡No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, ¡eliminar esto!",
+      cancelButtonText: "No, ¡cancelar!",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.value) {
+        axios
+          .get(`http://localhost/OTRI/deleteProyecto.php?id=${id_pro}`)
+          .then(() => this.cargar([]))
+          .catch((err) => console.log(err));
+        Swal.fire("¡Eliminado!", "Su proyecto ha sido eliminado ", "success");
+      } else if (result.dismiss === Swal.DismissReason.cancel)
+        Swal.fire("Cancelado", "Su proyecto está seguro", "error");
     });
   };
 
-  borrarDato = (id_pro) => {
-    axios
-      .get(`http://localhost/OTRI/deleteProyecto.php?id=${id_pro}`)
-      .then((res) => res.data)
-      .then((data) => {
-        console.log(data.data);
-        this.cargar();
-      })
-      .catch((err) => console.log(err));
-  };
+  actualizar = (pro) =>
+    this.setState({ proyectoSeleccionado: pro, rediactualizar: true });
 
-  actualizar = async (pro) =>
-    await this.setState({ proyectoSeleccionado: pro, rediactualizar: true });
+  handlePageClick = (e) => {
+    const selectedPage = e.selected;
+    const offset = selectedPage * this.state.perPage;
+
+    this.setState(
+      {
+        currentPage: selectedPage,
+        offset: offset,
+      },
+      () => {
+        this.cargar([]);
+      }
+    );
+  };
 
   render() {
     if (this.state.rediactualizar)
       return (
         <Redirect
           to={{
-            pathname: "/actualizar",
+            pathname: "/nuevo",
             state: { proyecto: this.state.proyectoSeleccionado },
           }}
         />
       );
     if (this.state.mostrarTodo) return <Redirect to="/mostrar" />;
-    if (this.state.redireccion) return <Redirect to="/nuevo" />;
-    if (localStorage.getItem("admin") !== "")
+    if (this.state.redireccion)
       return (
+        <Redirect
+          to={{
+            pathname: "/nuevo",
+            state: { proyecto: "" },
+          }}
+        />
+      );
+    return (
+      <div>
         <div
-          className="flex-container"
+          className="flex-container "
           style={{ paddingTop: 10, paddingLeft: 35, paddingRight: 35 }}
         >
-          <div className="filtro">
+          <div className="filtro ">
             <div className="titulo">Filtro</div>
             <div className="fondo-filtro">
               <label>Impacto</label>
@@ -250,7 +383,7 @@ export default class Inicio extends Component {
                 value={this.state.impacto}
                 onChange={this.cambioEstado}
               >
-                <option value="" disabled selected>
+                <option value="" disabled>
                   -
                 </option>
                 <option value="EXTERNO">Externo</option>
@@ -264,7 +397,7 @@ export default class Inicio extends Component {
                 value={this.state.estado}
                 onChange={this.cambioEstado}
               >
-                <option value="" disabled selected>
+                <option value="" disabled>
                   -
                 </option>
                 <option value="PROPUESTA">Propuesta</option>
@@ -370,7 +503,7 @@ export default class Inicio extends Component {
                 </a>
               </div>
             </div>
-            <div className="tabla_1 scrollito">
+            <div className="tabla_1 ">
               <Table id="customers">
                 <thead>
                   <tr>
@@ -382,56 +515,27 @@ export default class Inicio extends Component {
                     <th data-field="botones"></th>
                   </tr>
                 </thead>
-                <tbody>
-                  {this.state.proyectos.map((proyecto) => {
-                    return (
-                      <tr key={proyecto.id_pro}>
-                        <td>{proyecto.fac_pro}</td>
-                        <td>{proyecto.tit_pro}</td>
-                        <td>{proyecto.est_pro}</td>
-                        <td>{proyecto.inv_pro}</td>
-                        <td>{proyecto.ent_eje_pro}</td>
-                        <td>
-                          <Button
-                            small
-                            className="red darken -3"
-                            onClick={() => this.borrarDato(proyecto.id_pro)}
-                          >
-                            <Icon>delete</Icon>
-                          </Button>
-                          <Button
-                            size="small"
-                            className="modal-trigger yellow darken -3"
-                            data-target="modal1"
-                            onClick={this.cambioModal(proyecto)}
-                          >
-                            <Icon>remove_red_eye</Icon>
-                          </Button>
-                          <Button
-                            small
-                            style={{ backgroundColor: "#1B7FCF" }}
-                            onClick={() => this.actualizar(proyecto)}
-                          >
-                            <Icon>edit</Icon>
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
+                <tbody>{this.state.postData}</tbody>
               </Table>
             </div>
             <div className="navbar_abajo ">
-              <div className="pagination">
-                <a href="#">&laquo;</a>
-                <a href="#" className="active">
-                  1
-                </a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-                <a href="#">&raquo;</a>
-              </div>
+              <ReactPaginate
+                previousLabel={"<-"}
+                nextLabel={"->"}
+                breakLabel={"..."}
+                breakClassName={"break-me"}
+                pageCount={this.state.pageCount}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={4}
+                onPageChange={this.handlePageClick}
+                containerClassName={"pagination"}
+                subContainerClassName={"pages pagination"}
+                activeClassName={"active pink darken-2"}
+                previousClassName={"white"}
+                pageClassName={"white"}
+                nextClassName={"white"}
+              />
+
               <div className="botonVertodo">
                 <Button
                   small
@@ -455,7 +559,6 @@ export default class Inicio extends Component {
             className="modal"
           >
             <div className="modal-content">
-              {console.log(this.state.ModalProyecto)}
               <Table id="customers">
                 <thead>
                   <tr>
@@ -519,10 +622,22 @@ export default class Inicio extends Component {
                     <td>{this.state.ModalProyecto.val_eje_usc}</td>
                     <td>{this.state.ModalProyecto.arc_fis_pro}</td>
                     <td>
-                      <Button small className="red darken -3">
+                      <Button
+                        small
+                        className="red darken -3"
+                        onClick={() =>
+                          this.borrarDato(this.state.ModalProyecto.id_pro)
+                        }
+                      >
                         <Icon>delete</Icon>
                       </Button>
-                      <Button small style={{ backgroundColor: "#1B7FCF" }}>
+                      <Button
+                        small
+                        style={{ backgroundColor: "#1B7FCF" }}
+                        onClick={() =>
+                          this.actualizar(this.state.ModalProyecto)
+                        }
+                      >
                         <Icon>edit</Icon>
                       </Button>
                     </td>
@@ -540,9 +655,33 @@ export default class Inicio extends Component {
             </div>
           </div>
         </div>
-      );
-    else {
-      return <Redirect to="/" />;
-    }
+        <div className="row" style={{ paddingLeft: 50, paddingRight: 50 }}>
+          <div className="col s6 z-depth-2">
+            <Chart
+              width={"100%"}
+              height={"300px"}
+              chartType="PieChart"
+              loader={<div>Loading Chart</div>}
+              data={this.state.graf1}
+              options={{
+                title: "Proyectos por facultad",
+              }}
+            />
+          </div>
+          <div className="col s6 z-depth-2">
+            <Chart
+              width={"100%"}
+              height={"300px"}
+              chartType="BarChart"
+              loader={<div>Loading Chart</div>}
+              data={this.state.graf2}
+              options={{
+                title: "Cantidad de proyectos según su estado",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    );
   }
 }

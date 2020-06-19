@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import sharpPerson from "@iconify/icons-ic/sharp-person";
+import axios from "axios";
 import "./Login.css";
 import "./Inicio.jsx";
 
@@ -16,16 +17,7 @@ export default class Login extends Component {
     // La niña de mi corazon y de mis ojos
     // Mi tesoro mas precioso
 
-    this.state = { usuario: "", contra: "", ingreso: false };
-  }
-
-  componentDidMount() {
-    if (localStorage.getItem("admin") !== "") {
-      this.props.cambioTrue();
-      this.setState({ ingreso: true });
-    } else {
-      this.props.cambioFalse();
-    }
+    this.state = { usuario: "", contra: "", ingreso: true };
   }
 
   handleChange = (e) => {
@@ -33,21 +25,21 @@ export default class Login extends Component {
   };
 
   login = () => {
-    fetch(
-      `https://combita.company/otri/php/login.php?usuario=${this.state.usuario}&contrasena=${this.state.contra}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.estado) {
-          this.setState({ ingreso: true });
+    axios
+      .get(
+        `http://localhost/OTRI/login.php?usuario=${this.state.usuario}&contrasena=${this.state.contra}`
+      )
+      .then((res) => {
+        if (res.data.estado) {
           this.props.cambioTrue();
-          localStorage.setItem("admin", true);
+          this.setState({ ingreso: true });
         }
       })
       .catch((err) => console.error(err));
   };
 
   render() {
+    if (this.state.ingreso) return <Redirect to="/inicio" />;
     return (
       <div
         style={{
@@ -56,7 +48,6 @@ export default class Login extends Component {
           paddingRight: 35,
         }}
       >
-        {this.state.ingreso && <Redirect to="/inicio" />}
         <div
           className="container"
           style={{
