@@ -32,8 +32,6 @@
   $obj = new \stdClass();
 
   try {
-    
-    
     if($_FILES["arc_fis_pro"]["tmp_name"]){
       file_put_contents("./pdf/". $arc_fis_pro, file_get_contents($_FILES["arc_fis_pro"]["tmp_name"]));
       $consulta = conectarBD::conexion()->query("INSERT INTO tabla_proyectos VALUES(NULL,{$ani_pro}, '{$tip_pro}','{$con_pro}','{$fac_pro}','{$tit_pro}', {$cod_pro},'{$est_pro}','{$imp_pro}','{$inv_pro}','{$co_inv_pro}','{$inv_lid_pro}','{$gru_pro}','{$otr_ent_par}', '{$ent_eje_pro}',{$val_efe_tot}, {$val_esp_tot}, {$val_tot_pro}, {$val_efe_fin}, {$val_efe_usc}, {$val_esp_otr}, {$cont_esp_usc}, '{$fec_ini_pro}', '{$fec_fin_pro}', '{$pro_pro}','{$obs_pro}',{$val_eje_usc},'{$arc_fis_pro}')");
@@ -41,7 +39,6 @@
       $arc_fis_pro = "";
       $consulta = conectarBD::conexion()->query("INSERT INTO tabla_proyectos VALUES(NULL,{$ani_pro}, '{$tip_pro}','{$con_pro}','{$fac_pro}','{$tit_pro}', {$cod_pro},'{$est_pro}','{$imp_pro}','{$inv_pro}','{$co_inv_pro}','{$inv_lid_pro}','{$gru_pro}','{$otr_ent_par}', '{$ent_eje_pro}',{$val_efe_tot}, {$val_esp_tot}, {$val_tot_pro}, {$val_efe_fin}, {$val_efe_usc}, {$val_esp_otr}, {$cont_esp_usc}, '{$fec_ini_pro}', '{$fec_fin_pro}', '{$pro_pro}','{$obs_pro}',{$val_eje_usc},NULL)");
     }
-
     $obj->estado = true;
   } catch (exception $e) {
     echo $e;

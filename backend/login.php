@@ -1,6 +1,4 @@
 <?php
-  header("Content-Type: application/json"); 
-   
   require_once("./conectarBD.php");
 
   $obj = new \stdClass();
