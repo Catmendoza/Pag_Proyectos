@@ -1,16 +1,117 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { Icon, TextInput } from "react-materialize";
-
+import { Icon, Button } from "react-materialize";
+import axios from "axios";
+import Swal from "sweetalert2";
 import "./Nuevo.css";
 
 export default class Nuevo extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      cerrar: false,
 
+    if (this.props.location.state.proyecto === "")
+      this.state = {
+        cod_pro: "",
+        tit_pro: "",
+        ani_pro: "",
+        tip_pro: "",
+        con_pro: "",
+        fac_pro: "",
+        est_pro: "",
+        imp_pro: "",
+        inv_pro: "",
+        co_inv_pro: "",
+        inv_lid_pro: "",
+        gru_pro: "",
+        otr_ent_par: "",
+        ent_eje_pro: "",
+        val_efe_tot: "",
+        val_esp_tot: "",
+        val_tot_pro: "",
+        val_efe_fin: "",
+        val_efe_usc: "",
+        val_esp_otr: "",
+        cont_esp_usc: "",
+        fec_ini_pro: "",
+        fec_fin_pro: "",
+        pro_pro: "",
+        obs_pro: "",
+        val_eje_usc: "",
+        arc_fis_pro: "",
+        cerrar: false,
+      };
+    else
+      this.state = {
+        id: this.props.location.state.proyecto.id_pro,
+        cod_pro: this.props.location.state.proyecto.cod_pro,
+        tit_pro: this.props.location.state.proyecto.tit_pro,
+        ani_pro: this.props.location.state.proyecto.ani_pro,
+        tip_pro: this.props.location.state.proyecto.tip_pro,
+        con_pro: this.props.location.state.proyecto.con_pro,
+        fac_pro: this.props.location.state.proyecto.fac_pro,
+        est_pro: this.props.location.state.proyecto.est_pro,
+        imp_pro: this.props.location.state.proyecto.imp_pro,
+        inv_pro: this.props.location.state.proyecto.inv_pro,
+        co_inv_pro: this.props.location.state.proyecto.co_inv_pro,
+        inv_lid_pro: this.props.location.state.proyecto.inv_lid_pro,
+        gru_pro: this.props.location.state.proyecto.gru_pro,
+        otr_ent_par: this.props.location.state.proyecto.otr_ent_par,
+        ent_eje_pro: this.props.location.state.proyecto.ent_eje_pro,
+        val_efe_tot: this.props.location.state.proyecto.val_efe_tot,
+        val_esp_tot: this.props.location.state.proyecto.val_esp_tot,
+        val_tot_pro: this.props.location.state.proyecto.val_tot_pro,
+        val_efe_fin: this.props.location.state.proyecto.val_efe_fin,
+        val_efe_usc: this.props.location.state.proyecto.val_efe_usc,
+        val_esp_otr: this.props.location.state.proyecto.val_esp_otr,
+        cont_esp_usc: this.props.location.state.proyecto.cont_esp_usc,
+        fec_ini_pro: this.props.location.state.proyecto.fec_ini_pro,
+        fec_fin_pro: this.props.location.state.proyecto.fec_fin_pro,
+        pro_pro: this.props.location.state.proyecto.pro_pro,
+        obs_pro: this.props.location.state.proyecto.obs_pro,
+        val_eje_usc: this.props.location.state.proyecto.val_eje_usc,
+        arc_fis_pro: "",
+        cerrar: false,
+      };
+  }
+
+  handleChange = (e) => this.setState({ [e.target.name]: e.target.value });
+
+  agregar = (e) => {
+    e.preventDefault();
+
+    const data = new FormData(e.target);
+    if (this.props.location.state.proyecto === "")
+      axios
+        .post(`http://localhost/OTRI/createProyecto.php`, data)
+        .then((res) => {
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "El proyecto ha sido almacenada.",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+          this.setState({ cerrar: true });
+        });
+    else
+      axios
+        .post(`http://localhost/OTRI/updateProyecto.php`, data)
+        .then((res) => {
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "El proyecto ha sido actualizado.",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+          this.setState({ cerrar: true });
+          console.log(res);
+        });
+  };
+
+  limpiar = () =>
+    this.setState({
       cod_pro: "",
       tit_pro: "",
       ani_pro: "",
@@ -38,27 +139,7 @@ export default class Nuevo extends Component {
       obs_pro: "",
       val_eje_usc: "",
       arc_fis_pro: "",
-    };
-  }
-
-  handleChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  agregar(e) {
-    e.preventDefault();
-
-    const data = new FormData(e.target);
-
-    fetch("localhost/OTRI/createProyecto.php", {
-      mode: "no-cors",
-      method: "POST",
-      body: data,
-    })
-      .then((res) => res.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.log(err));
-  }
+    });
 
   cerrar = () => this.setState({ cerrar: true });
 
@@ -68,6 +149,15 @@ export default class Nuevo extends Component {
       <div style={{ paddingTop: 10, paddingLeft: 35, paddingRight: 35 }}>
         <div className="datos" />
         <form onSubmit={this.agregar}>
+          {this.props.location.proyecto !== "" && (
+            <input
+              type="hidden"
+              value={this.state.id}
+              id="id"
+              name="id"
+              disable
+            />
+          )}
           <div
             style={{
               display: "flex",
@@ -209,12 +299,14 @@ export default class Nuevo extends Component {
             </div>
             <div
               className="columnanuevo"
-              style={{ marginRight: 5, flexBasis: 200 }}
+              style={{ marginRight: 5, flexBasis: 110 }}
             >
               <select
                 className="browser-default"
                 id="select_1_nuevo"
-                name="Impacto"
+                name="imp_pro"
+                value={this.state.imp_pro}
+                onChange={this.handleChange}
                 style={{
                   width: "100%",
                   height: 30,
@@ -223,11 +315,40 @@ export default class Nuevo extends Component {
                   borderColor: "transparent",
                 }}
               >
-                <option value="" disabled selected>
+                <option value="" disabled>
                   -
                 </option>
                 <option value="EXTERNO">Externo</option>
                 <option value="INTERNO">Interno</option>
+              </select>
+            </div>
+            <div className="columnanuevo" style={{ marginRight: 10 }}>
+              Estado:
+            </div>
+            <div
+              className="columnanuevo"
+              style={{ marginRight: 5, flexBasis: 130 }}
+            >
+              <select
+                className="browser-default"
+                id="select_1_nuevo"
+                name="est_pro"
+                value={this.state.est_pro}
+                onChange={this.handleChange}
+                style={{
+                  width: "100%",
+                  height: 30,
+                  borderRadius: 5,
+                  background: "rgb(176, 179, 188, 20%)",
+                  borderColor: "transparent",
+                }}
+              >
+                <option value="" disabled>
+                  -
+                </option>
+                <option value="PROPUESTA">Propuesta</option>
+                <option value="EJECUCION">Ejecución</option>
+                <option value="TERMINADO">Terminado</option>
               </select>
             </div>
           </div>
@@ -665,7 +786,7 @@ export default class Nuevo extends Component {
             </div>
             <div
               className="columnanuevo"
-              style={{ marginRight: 10, flexGrow: 4 }}
+              style={{ marginRight: 10, flexGrow: 2 }}
             >
               <input
                 id="val_tot_pro"
@@ -687,12 +808,34 @@ export default class Nuevo extends Component {
             </div>
             <div
               className="columnanuevo"
-              style={{ marginRight: 10, flexGrow: 4 }}
+              style={{ marginRight: 10, flexGrow: 2 }}
             >
               <input
                 id="val_efe_tot"
                 name="val_efe_tot"
                 value={this.state.val_efe_tot}
+                onChange={this.handleChange}
+                type="number"
+                style={{
+                  width: "100%",
+                  height: 30,
+                  borderRadius: 5,
+                  background: "rgb(176, 179, 188, 20%)",
+                  borderColor: "transparent",
+                }}
+              ></input>
+            </div>
+            <div className="columnanuevo" style={{ marginRight: 10 }}>
+              Valor efectivo USC:
+            </div>
+            <div
+              className="columnanuevo"
+              style={{ marginRight: 10, flexGrow: 2 }}
+            >
+              <input
+                id="val_efe_usc"
+                name="val_efe_usc"
+                value={this.state.val_efe_usc}
                 onChange={this.handleChange}
                 type="number"
                 style={{
@@ -728,7 +871,7 @@ export default class Nuevo extends Component {
             </div>
           </div>
           <div className="botones">
-            <TextInput
+            <Button
               className="waves-effect waves-light btn"
               style={{
                 marginTop: 12,
@@ -742,7 +885,32 @@ export default class Nuevo extends Component {
                 float: "right",
               }}
               type="submit"
-            ></TextInput>
+            >
+              {this.props.location.state.proyecto === ""
+                ? "Guardar"
+                : "Actualizar"}
+              <Icon left>save</Icon>
+            </Button>
+            {this.props.location.state.proyecto === "" && (
+              <a
+                className="waves-effect waves-light btn"
+                style={{
+                  marginTop: 12,
+                  marginRight: 5,
+                  borderRadius: 5,
+                  backgroundColor: "#1B7FCF",
+                  color: "white",
+                  fontSize: 15,
+                  width: "10%",
+                  textAlign: "left",
+                  float: "right",
+                }}
+                onClick={this.limpiar}
+              >
+                Limpiar
+                <Icon left>delete</Icon>
+              </a>
+            )}
             <a
               className="waves-effect waves-light btn"
               style={{
