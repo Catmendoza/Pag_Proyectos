@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import sharpPerson from "@iconify/icons-ic/sharp-person";
+import Swal from "sweetalert2";
 import axios from "axios";
 import "./Login.css";
 import "./Inicio.jsx";
@@ -17,7 +18,7 @@ export default class Login extends Component {
     // La niña de mi corazon y de mis ojos
     // Mi tesoro mas precioso
 
-    this.state = { usuario: "", contra: "", ingreso: true };
+    this.state = { usuario: "", contra: "", ingreso: false };
   }
 
   handleChange = (e) => {
@@ -27,12 +28,15 @@ export default class Login extends Component {
   login = () => {
     axios
       .get(
-        `http://localhost/OTRI/login.php?usuario=${this.state.usuario}&contrasena=${this.state.contra}`
+        `https://combita.company/php/login.php?usuario=${this.state.usuario}&contrasena=${this.state.contra}`
       )
       .then((res) => {
         if (res.data.estado) {
           this.props.cambioTrue();
           this.setState({ ingreso: true });
+        } else {
+          Swal.fire("Error", "Su usuario no existe", "error");
+          this.setState({ usuario: "", contra: "" });
         }
       })
       .catch((err) => console.error(err));

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { Icon, Table, Button } from "react-materialize";
+import { Icon, Table, Button, Preloader } from "react-materialize";
 import M from "materialize-css";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -9,7 +9,6 @@ import Chart from "react-google-charts";
 import ReactPaginate from "react-paginate";
 import "./Inicio.css";
 import "./Nuevo.jsx";
-import "./Actualizar.jsx";
 
 export default class Inicio extends Component {
   constructor(props) {
@@ -33,64 +32,71 @@ export default class Inicio extends Component {
       perPage: 4,
       currentPage: 0,
       busText: false,
+      cargado: false,
     };
   }
 
   cargar = (arr) =>
-    axios.get(`http://localhost/OTRI/getProyecto.php`).then(async (res) => {
-      let data = this.state.busText ? arr : res.data;
+    axios
+      .get(`https://combita.company/php/getProyecto.php`)
+      .then(async (res) => {
+        this.setState({ cargado: false });
+        let data = this.state.busText ? arr : res.data;
 
-      const slice = data.slice(
-        this.state.offset,
-        this.state.offset + this.state.perPage
-      );
+        const slice = data.slice(
+          this.state.offset,
+          this.state.offset + this.state.perPage
+        );
 
-      const postData = slice.map((pd) => (
-        <React.Fragment key={pd.id_pro}>
-          <tr>
-            <td>{pd.fac_pro}</td>
-            <td>{pd.tit_pro}</td>
-            <td>{pd.est_pro}</td>
-            <td>{pd.inv_pro}</td>
-            <td>{!pd.ent_eje_pro ? "-" : pd.ent_eje_pro}</td>
-            <td>
-              <Button
-                small
-                className="red darken -3"
-                onClick={() => this.borrarDato(pd.id_pro)}
-              >
-                <Icon>delete</Icon>
-              </Button>
-              <Button
-                size="small"
-                className="modal-trigger yellow darken -3"
-                data-target="modal1"
-                onClick={() => this.cambioModal(pd)}
-              >
-                <Icon>remove_red_eye</Icon>
-              </Button>
-              <Button
-                small
-                style={{ backgroundColor: "#1B7FCF" }}
-                onClick={() => this.actualizar(pd)}
-              >
-                <Icon>edit</Icon>
-              </Button>
-            </td>
-          </tr>
-        </React.Fragment>
-      ));
+        const postData = slice.map((pd) => (
+          <React.Fragment key={pd.id_pro}>
+            <tr>
+              <td>{pd.fac_pro}</td>
+              <td>{pd.tit_pro}</td>
+              <td>{pd.est_pro}</td>
+              <td>{pd.inv_pro}</td>
+              <td>{pd.ent_eje_pro}</td>
+              <td>
+                <Button
+                  small
+                  className="red darken -3"
+                  onClick={() => this.borrarDato(pd.id_pro)}
+                >
+                  <Icon>delete</Icon>
+                </Button>
+                <Button
+                  size="small"
+                  className="modal-trigger yellow darken -3"
+                  data-target="modal1"
+                  onClick={() => this.cambioModal(pd)}
+                >
+                  <Icon>remove_red_eye</Icon>
+                </Button>
+                <Button
+                  small
+                  style={{ backgroundColor: "#1B7FCF" }}
+                  onClick={() => this.actualizar(pd)}
+                >
+                  <Icon>edit</Icon>
+                </Button>
+              </td>
+            </tr>
+          </React.Fragment>
+        ));
 
-      this.setState(
-        {
-          pageCount: Math.ceil(data.length / this.state.perPage),
-          postData,
-          proyectos: data,
-          proyectosCopia: res.data,
-        },
-        () => this.cargarGraficas()
-      );
-    });
+        this.setState(
+          {
+            pageCount: Math.ceil(data.length / this.state.perPage),
+            postData,
+            proyectos: data,
+            proyectosCopia: res.data,
+          },
+          () => {
+            this.cargarGraficas();
+            this.setState({ cargado: true });
+          }
+        );
+      });
 
   remover = (text) => {
     return text
@@ -319,7 +325,7 @@ export default class Inicio extends Component {
     }).then((result) => {
       if (result.value) {
         axios
-          .get(`http://localhost/OTRI/deleteProyecto.php?id=${id_pro}`)
+          .get(`https://combita.company/php/deleteProyecto.php?id=${id_pro}`)
           .then(() => this.cargar([]))
           .catch((err) => console.log(err));
         Swal.fire("¡Eliminado!", "Su proyecto ha sido eliminado ", "success");
@@ -504,37 +510,45 @@ export default class Inicio extends Component {
               </div>
             </div>
             <div className="tabla_1 ">
-              <Table id="customers">
-                <thead>
-                  <tr>
-                    <th data-field="facultad">Facultad</th>
-                    <th data-field="titulo">Título</th>
-                    <th data-field="estado">Estado</th>
-                    <th data-field="inv_prin">Inv. principal</th>
-                    <th data-field="ent_eje">Ent. Ejecutora</th>
-                    <th data-field="botones"></th>
-                  </tr>
-                </thead>
-                <tbody>{this.state.postData}</tbody>
-              </Table>
+              {!this.state.cargado ? (
+                <div
+                  className="center"
+                  style={{ paddingTop: 60, paddingBottom: 60 }}
+                >
+                  <Preloader active color="blue" size="big" flashing />
+                </div>
+              ) : (
+                <Table id="customers">
+                  <thead>
+                    <tr>
+                      <th data-field="facultad">Facultad</th>
+                      <th data-field="titulo">Título</th>
+                      <th data-field="estado">Estado</th>
+                      <th data-field="inv_prin">Inv. principal</th>
+                      <th data-field="ent_eje">Ent. Ejecutora</th>
+                      <th data-field="botones"></th>
+                    </tr>
+                  </thead>
+                  <tbody>{this.state.postData}</tbody>
+                </Table>
+              )}
             </div>
             <div className="navbar_abajo ">
-              <ReactPaginate
-                previousLabel={"<-"}
-                nextLabel={"->"}
-                breakLabel={"..."}
-                breakClassName={"break-me"}
-                pageCount={this.state.pageCount}
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={4}
-                onPageChange={this.handlePageClick}
-                containerClassName={"pagination"}
-                subContainerClassName={"pages pagination"}
-                activeClassName={"active pink darken-2"}
-                previousClassName={"white"}
-                pageClassName={"white"}
-                nextClassName={"white"}
-              />
+              {this.state.cargado && (
+                <ReactPaginate
+                  previousLabel={"<-"}
+                  nextLabel={"->"}
+                  breakLabel={"..."}
+                  breakClassName={"break-me"}
+                  pageCount={this.state.pageCount}
+                  marginPagesDisplayed={2}
+                  pageRangeDisplayed={4}
+                  onPageChange={this.handlePageClick}
+                  containerClassName={"pagination"}
+                  subContainerClassName={"pages pagination"}
+                  activeClassName={"active blue darken-2"}
+                />
+              )}
 
               <div className="botonVertodo">
                 <Button
@@ -615,12 +629,26 @@ export default class Inicio extends Component {
                     <td>{this.state.ModalProyecto.val_efe_usc}</td>
                     <td>{this.state.ModalProyecto.val_esp_otr_ent}</td>
                     <td>{this.state.ModalProyecto.con_esp_usc}</td>
-                    <td>{this.state.ModalProyecto.fec_ini}</td>
-                    <td>{this.state.ModalProyecto.fec_fin}</td>
+                    <td>
+                      {this.state.ModalProyecto.fec_ini_pro === "1900-05-02"
+                        ? ""
+                        : this.state.ModalProyecto.fec_ini_pro}
+                    </td>
+                    <td>
+                      {this.state.ModalProyecto.fec_fin_pro === "1900-05-02"
+                        ? ""
+                        : this.state.ModalProyecto.fec_fin_pro}
+                    </td>
                     <td>{this.state.ModalProyecto.pro_pro}</td>
                     <td>{this.state.ModalProyecto.obs_pro}</td>
                     <td>{this.state.ModalProyecto.val_eje_usc}</td>
-                    <td>{this.state.ModalProyecto.arc_fis_pro}</td>
+                    <td>
+                      <a
+                        href={`https://combita.company/php/${this.state.ModalProyecto.arc_fis_pro}`}
+                      >
+                        {this.state.ModalProyecto.arc_fis_pro}
+                      </a>
+                    </td>
                     <td>
                       <Button
                         small
@@ -661,7 +689,14 @@ export default class Inicio extends Component {
               width={"100%"}
               height={"300px"}
               chartType="PieChart"
-              loader={<div>Loading Chart</div>}
+              loader={
+                <div
+                  className="center"
+                  style={{ paddingTop: 60, paddingBottom: 60 }}
+                >
+                  <Preloader active color="blue" size="big" flashing />
+                </div>
+              }
               data={this.state.graf1}
               options={{
                 title: "Proyectos por facultad",
@@ -673,7 +708,14 @@ export default class Inicio extends Component {
               width={"100%"}
               height={"300px"}
               chartType="BarChart"
-              loader={<div>Loading Chart</div>}
+              loader={
+                <div
+                  className="center"
+                  style={{ paddingTop: 60, paddingBottom: 60 }}
+                >
+                  <Preloader active color="blue" size="big" flashing />
+                </div>
+              }
               data={this.state.graf2}
               options={{
                 title: "Cantidad de proyectos según su estado",

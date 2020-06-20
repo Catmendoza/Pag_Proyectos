@@ -83,7 +83,7 @@ export default class Nuevo extends Component {
     const data = new FormData(e.target);
     if (this.props.location.state.proyecto === "")
       axios
-        .post(`http://localhost/OTRI/createProyecto.php`, data)
+        .post(`https://combita.company/php/createProyecto.php`, data)
         .then((res) => {
           Swal.fire({
             position: "center",
@@ -96,7 +96,7 @@ export default class Nuevo extends Component {
         });
     else
       axios
-        .post(`http://localhost/OTRI/updateProyecto.php`, data)
+        .post(`https://combita.company/php/updateProyecto.php`, data)
         .then((res) => {
           Swal.fire({
             position: "center",
@@ -205,6 +205,7 @@ export default class Nuevo extends Component {
                 name="tit_pro"
                 value={this.state.tit_pro}
                 onChange={this.handleChange}
+                required
                 style={{
                   width: "100%",
                   height: 30,
@@ -307,6 +308,7 @@ export default class Nuevo extends Component {
                 name="imp_pro"
                 value={this.state.imp_pro}
                 onChange={this.handleChange}
+                required
                 style={{
                   width: "100%",
                   height: 30,
@@ -335,6 +337,7 @@ export default class Nuevo extends Component {
                 name="est_pro"
                 value={this.state.est_pro}
                 onChange={this.handleChange}
+                required
                 style={{
                   width: "100%",
                   height: 30,

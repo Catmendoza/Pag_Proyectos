@@ -16,7 +16,7 @@ import Titulo from "./assets/image/unnamed.png";
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { ingreso: true };
+    this.state = { ingreso: false };
   }
 
   cambioTrue = () => this.setState({ ingreso: true });
@@ -91,7 +91,7 @@ export default class App extends Component {
                 <Route path="/mostrar" exact component={Mostrar} />
               </>
             )}
-            <Route path="/Login" exact>
+            <Route>
               <Login
                 cambioTrue={this.cambioTrue}
                 cambioFalse={this.cambioFalse}

@@ -25,7 +25,7 @@ export default class Mostrar extends Component {
   cerrar = () => this.setState({ cerrar: true });
 
   cargar = () => {
-    fetch("http://localhost/OTRI/getProyecto.php")
+    fetch("https://combita.company/php/getProyecto.php")
       .then((res) => res.json())
       .then((data) => this.setState({ proyectos: data }))
       .catch((err) => console.log(err));
@@ -45,7 +45,7 @@ export default class Mostrar extends Component {
     }).then((result) => {
       if (result.value) {
         axios
-          .get(`http://localhost/OTRI/deleteProyecto.php?id=${id_pro}`)
+          .get(`https://combita.company/php/deleteProyecto.php?id=${id_pro}`)
           .then((res) => res.data)
           .then((data) => {
             console.log(data.data);
@@ -62,14 +62,15 @@ export default class Mostrar extends Component {
     });
   };
 
-  actualizar = async (pro) =>
-    await this.setState({ proyectoSeleccionado: pro, rediactualizar: true });
+  actualizar = (pro) =>
+    this.setState({ proyectoSeleccionado: pro, rediactualizar: true });
+
   render() {
     if (this.state.rediactualizar)
       return (
         <Redirect
           to={{
-            pathname: "/actualizar",
+            pathname: "/nuevo",
             state: { proyecto: this.state.proyectoSeleccionado },
           }}
         />
@@ -135,12 +136,26 @@ export default class Mostrar extends Component {
                     <td>{proyecto.val_efe_usc}</td>
                     <td>{proyecto.val_esp_otr}</td>
                     <td>{proyecto.cont_esp_usc}</td>
-                    <td>{proyecto.fec_ini_pro}</td>
-                    <td>{proyecto.fec_fin_pro}</td>
+                    <td>
+                      {proyecto.fec_ini_pro === "1900-05-02"
+                        ? ""
+                        : proyecto.fec_ini_pro}
+                    </td>
+                    <td>
+                      {proyecto.fec_fin_pro === "1900-05-02"
+                        ? ""
+                        : proyecto.fec_fin_pro}
+                    </td>
                     <td>{proyecto.pro_pro}</td>
                     <td>{proyecto.obs_pro}</td>
                     <td>{proyecto.val_eje_usc}</td>
-                    <td>{proyecto.arc_fis_pro}</td>
+                    <td>
+                      <a
+                        href={`https://combita.company/php/${proyecto.arc_fis_pro}`}
+                      >
+                        {proyecto.arc_fis_pro}
+                      </a>
+                    </td>
                     <td>
                       <Button
                         small
