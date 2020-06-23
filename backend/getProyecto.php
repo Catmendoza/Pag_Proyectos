@@ -8,5 +8,6 @@
         array_push($lista, $filas);
     }
 
+    $lista = array_reverse($lista);
+
     echo json_encode($lista);
-?>

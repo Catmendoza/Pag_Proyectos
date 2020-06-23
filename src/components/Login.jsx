@@ -18,7 +18,7 @@ export default class Login extends Component {
     // La niña de mi corazon y de mis ojos
     // Mi tesoro mas precioso
 
-    this.state = { usuario: "", contra: "", ingreso: false };
+    this.state = { usuario: "", contra: "", ingreso: true };
   }
 
   handleChange = (e) => {

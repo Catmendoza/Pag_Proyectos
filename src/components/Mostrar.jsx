@@ -19,17 +19,16 @@ export default class Mostrar extends Component {
 
   componentDidMount() {
     this.cargar();
-    console.log(this.state.proyectos);
   }
 
   cerrar = () => this.setState({ cerrar: true });
 
-  cargar = () => {
-    fetch("https://combita.company/php/getProyecto.php")
-      .then((res) => res.json())
+  cargar = () =>
+    axios
+      .get("http://localhost/php/getProyecto.php")
+      .then((res) => res.data)
       .then((data) => this.setState({ proyectos: data }))
       .catch((err) => console.log(err));
-  };
 
   borrarDato = (id_pro) => {
     Swal.fire({
@@ -45,7 +44,7 @@ export default class Mostrar extends Component {
     }).then((result) => {
       if (result.value) {
         axios
-          .get(`https://combita.company/php/deleteProyecto.php?id=${id_pro}`)
+          .get(`http://localhost/php/deleteProyecto.php?id=${id_pro}`)
           .then((res) => res.data)
           .then((data) => {
             console.log(data.data);
@@ -53,12 +52,8 @@ export default class Mostrar extends Component {
           })
           .catch((err) => console.log(err));
         Swal.fire("¡Eliminado!", "Su proyecto ha sido eliminado ", "success");
-      } else if (
-        /* Read more about handling dismissals below */
-        result.dismiss === Swal.DismissReason.cancel
-      ) {
+      } else if (result.dismiss === Swal.DismissReason.cancel)
         Swal.fire("Cancelado", "Su proyecto está seguro", "error");
-      }
     });
   };
 
@@ -150,9 +145,7 @@ export default class Mostrar extends Component {
                     <td>{proyecto.obs_pro}</td>
                     <td>{proyecto.val_eje_usc}</td>
                     <td>
-                      <a
-                        href={`https://combita.company/php/${proyecto.arc_fis_pro}`}
-                      >
+                      <a href={`http://localhost/php/${proyecto.arc_fis_pro}`}>
                         {proyecto.arc_fis_pro}
                       </a>
                     </td>

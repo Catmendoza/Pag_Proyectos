@@ -37,66 +37,61 @@ export default class Inicio extends Component {
   }
 
   cargar = (arr) =>
-    axios
-      .get(`https://combita.company/php/getProyecto.php`)
-      .then(async (res) => {
-        this.setState({ cargado: false });
-        let data = this.state.busText ? arr : res.data;
+    axios.get(`http://localhost/php/getProyecto.php`).then(async (res) => {
+      this.setState({ cargado: true });
+      let data = this.state.busText && arr ? arr : res.data;
 
-        const slice = data.slice(
-          this.state.offset,
-          this.state.offset + this.state.perPage
-        );
+      const slice = data.slice(
+        this.state.offset,
+        this.state.offset + this.state.perPage
+      );
 
-        const postData = slice.map((pd) => (
-          <React.Fragment key={pd.id_pro}>
-            <tr>
-              <td>{pd.fac_pro}</td>
-              <td>{pd.tit_pro}</td>
-              <td>{pd.est_pro}</td>
-              <td>{pd.inv_pro}</td>
-              <td>{pd.ent_eje_pro}</td>
-              <td>
-                <Button
-                  small
-                  className="red darken -3"
-                  onClick={() => this.borrarDato(pd.id_pro)}
-                >
-                  <Icon>delete</Icon>
-                </Button>
-                <Button
-                  size="small"
-                  className="modal-trigger yellow darken -3"
-                  data-target="modal1"
-                  onClick={() => this.cambioModal(pd)}
-                >
-                  <Icon>remove_red_eye</Icon>
-                </Button>
-                <Button
-                  small
-                  style={{ backgroundColor: "#1B7FCF" }}
-                  onClick={() => this.actualizar(pd)}
-                >
-                  <Icon>edit</Icon>
-                </Button>
-              </td>
-            </tr>
-          </React.Fragment>
-        ));
+      const postData = slice.map((pd) => (
+        <React.Fragment key={pd.id_pro}>
+          <tr>
+            <td>{pd.fac_pro}</td>
+            <td>{pd.tit_pro}</td>
+            <td>{pd.est_pro}</td>
+            <td>{pd.inv_pro}</td>
+            <td>{pd.ent_eje_pro}</td>
+            <td>
+              <Button
+                small
+                className="red darken -3"
+                onClick={() => this.borrarDato(pd.id_pro)}
+              >
+                <Icon>delete</Icon>
+              </Button>
+              <Button
+                size="small"
+                className="modal-trigger yellow darken -3"
+                data-target="modal1"
+                onClick={() => this.cambioModal(pd)}
+              >
+                <Icon>remove_red_eye</Icon>
+              </Button>
+              <Button
+                small
+                style={{ backgroundColor: "#1B7FCF" }}
+                onClick={() => this.actualizar(pd)}
+              >
+                <Icon>edit</Icon>
+              </Button>
+            </td>
+          </tr>
+        </React.Fragment>
+      ));
 
-        this.setState(
-          {
-            pageCount: Math.ceil(data.length / this.state.perPage),
-            postData,
-            proyectos: data,
-            proyectosCopia: res.data,
-          },
-          () => {
-            this.cargarGraficas();
-            this.setState({ cargado: true });
-          }
-        );
-      });
+      this.setState(
+        {
+          pageCount: Math.ceil(data.length / this.state.perPage),
+          postData,
+          proyectos: data,
+          proyectosCopia: res.data,
+        },
+        () => this.cargarGraficas()
+      );
+    });
 
   remover = (text) => {
     return text
@@ -117,7 +112,7 @@ export default class Inicio extends Component {
     //1 -> EJECUCION
     //2 -> TERMINADO
 
-    this.state.proyectosCopia.forEach((proyecto) => {
+    this.state.proyectos.forEach((proyecto) => {
       if (proyecto.fac_pro) {
         let bandera = true;
         let i;
@@ -325,7 +320,7 @@ export default class Inicio extends Component {
     }).then((result) => {
       if (result.value) {
         axios
-          .get(`https://combita.company/php/deleteProyecto.php?id=${id_pro}`)
+          .get(`http://localhost/php/deleteProyecto.php?id=${id_pro}`)
           .then(() => this.cargar([]))
           .catch((err) => console.log(err));
         Swal.fire("¡Eliminado!", "Su proyecto ha sido eliminado ", "success");
@@ -334,8 +329,10 @@ export default class Inicio extends Component {
     });
   };
 
-  actualizar = (pro) =>
+  actualizar = (pro) => {
+    console.log(pro);
     this.setState({ proyectoSeleccionado: pro, rediactualizar: true });
+  };
 
   handlePageClick = (e) => {
     const selectedPage = e.selected;
@@ -478,7 +475,18 @@ export default class Inicio extends Component {
                   minLength="4"
                   name="busqueda"
                   value={this.state.busqueda}
-                  onChange={this.cambioEstado}
+                  onChange={async (e) => {
+                    this.setState({ busqueda: e.target.value });
+                    await axios
+                      .get(
+                        `http://localhost/php/buscarProyecto.php?id=${e.target.value}`
+                      )
+                      .then((res) =>
+                        this.setState({ busText: true }, () =>
+                          this.cargar(res.data)
+                        )
+                      );
+                  }}
                   style={{
                     width: "90%",
                     marginLeft: 50,
@@ -644,7 +652,7 @@ export default class Inicio extends Component {
                     <td>{this.state.ModalProyecto.val_eje_usc}</td>
                     <td>
                       <a
-                        href={`https://combita.company/php/${this.state.ModalProyecto.arc_fis_pro}`}
+                        href={`http://localhost/php/${this.state.ModalProyecto.arc_fis_pro}`}
                       >
                         {this.state.ModalProyecto.arc_fis_pro}
                       </a>

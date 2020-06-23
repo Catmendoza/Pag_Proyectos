@@ -83,7 +83,7 @@ export default class Nuevo extends Component {
     const data = new FormData(e.target);
     if (this.props.location.state.proyecto === "")
       axios
-        .post(`https://combita.company/php/createProyecto.php`, data)
+        .post(`http://localhost/php/createProyecto.php`, data)
         .then((res) => {
           Swal.fire({
             position: "center",
@@ -96,7 +96,7 @@ export default class Nuevo extends Component {
         });
     else
       axios
-        .post(`https://combita.company/php/updateProyecto.php`, data)
+        .post(`http://localhost/php/updateProyecto.php`, data)
         .then((res) => {
           Swal.fire({
             position: "center",
@@ -150,13 +150,7 @@ export default class Nuevo extends Component {
         <div className="datos" />
         <form onSubmit={this.agregar}>
           {this.props.location.proyecto !== "" && (
-            <input
-              type="hidden"
-              value={this.state.id}
-              id="id"
-              name="id"
-              disable
-            />
+            <input type="hidden" value={this.state.id} id="id" name="id" />
           )}
           <div
             style={{
@@ -182,7 +176,7 @@ export default class Nuevo extends Component {
                 name="cod_pro"
                 value={this.state.cod_pro}
                 onChange={this.handleChange}
-                type="number"
+                type="text"
                 style={{
                   width: "100%",
                   height: 30,

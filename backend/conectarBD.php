@@ -11,8 +11,8 @@
             // Try catch por si ocurre algun error
             try {
                 // Se toma el localhost mostado en XAMPP
-               // $conexion = new PDO('mysql:host=https://combita.company/otri/php/ ; dbname=otri_proyecto', "root", "8426803156229492Ca#");
-                $conexion = new PDO('mysql:host=localhost; dbname=otri_proyecto', "root", "");
+               $conexion = new PDO('mysql:host=localhost; dbname=otri_proyecto', "root", "");
+                
                 // Se generean los atributos
                 $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 // Se especifica una conexio UTF-8

@@ -16,7 +16,7 @@ import Titulo from "./assets/image/unnamed.png";
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { ingreso: false };
+    this.state = { ingreso: true };
   }
 
   cambioTrue = () => this.setState({ ingreso: true });

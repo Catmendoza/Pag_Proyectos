@@ -2,6 +2,7 @@
   "name": "otri_proyecto",
   "version": "0.1.0",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "@iconify/icons-bx": "^1.0.3",
     "@iconify/icons-ic": "^1.0.11",

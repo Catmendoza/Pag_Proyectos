@@ -9,7 +9,7 @@ try {
     conectarBD::conexion()->query("DELETE FROM tabla_proyectos WHERE id_pro=$id");
     while ($filas = $consulta->fetch(PDO::FETCH_ASSOC))
         if ($filas['arc_fis_pro']) {
-            unlink("./pdf/" . $filas['arc_fis_pro']);
+            unlink("./" . $filas['arc_fis_pro']);
             break;
         }
     $obj->estado = true;
